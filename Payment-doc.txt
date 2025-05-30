@@ -1,0 +1,201 @@
+Yes, you can use `EntityManager` with an H2 in-memory database in a Spring Boot application. H2 is a lightweight, in-memory database that is often used for testing and development purposes. Here’s how you can set up and use `EntityManager` with H2:
+
+### **Configuration**
+
+1. **Add Dependencies**:
+   - Ensure you have the necessary dependencies in your `pom.xml` for Spring Boot, JPA, and H2:
+
+```xml
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-data-jpa</artifactId>
+</dependency>
+<dependency>
+    <groupId>com.h2database</groupId>
+    <artifactId>h2</artifactId>
+</dependency>
+```
+
+2. **Configure Application Properties**:
+   - Set up your `application.properties` to configure the H2 database:
+
+```properties
+spring.datasource.url=jdbc:h2:mem:testdb
+spring.datasource.driverClassName=org.h2.Driver
+spring.datasource.username=sa
+spring.datasource.password=password
+spring.jpa.hibernate.ddl-auto=update
+spring.jpa.show-sql=true
+spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.H2Dialect
+spring.h2.console.enabled=true
+```
+
+### **Entity Example**
+
+#### **Policy Entity**
+
+```java
+package com.imsapp.ims.entity;
+
+import jakarta.persistence.*;
+import java.util.List;
+
+@Entity
+public class Policy {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    private String policyNumber;
+    private String policyType;
+    private String coverageDetails;
+
+    @OneToMany(mappedBy = "policy")
+    private List<Payment> payments;
+
+    // Getters and Setters
+}
+```
+
+#### **Payment Entity**
+
+```java
+package com.imsapp.ims.entity;
+
+import jakarta.persistence.*;
+import java.time.LocalDate;
+
+@Entity
+public class Payment {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    private Double amount;
+    private LocalDate datePaid;
+
+    @ManyToOne
+    @JoinColumn(name = "policy_id")
+    private Policy policy;
+
+    // Getters and Setters
+}
+```
+
+### **Repository Example**
+
+#### **PolicyRepository**
+
+```java
+package com.imsapp.ims.repository;
+
+import com.imsapp.ims.entity.Policy;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface PolicyRepository extends JpaRepository<Policy, Long> {
+    Policy findByPolicyNumber(String policyNumber);
+}
+```
+
+#### **PaymentRepository**
+
+```java
+package com.imsapp.ims.repository;
+
+import com.imsapp.ims.entity.Payment;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface PaymentRepository extends JpaRepository<Payment, Long> {
+}
+```
+
+### **Service Example**
+
+#### **PaymentService**
+
+```java
+package com.imsapp.ims.service;
+
+import com.imsapp.ims.entity.Payment;
+import com.imsapp.ims.entity.Policy;
+import com.imsapp.ims.repository.PaymentRepository;
+import com.imsapp.ims.repository.PolicyRepository;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDate;
+
+@Service
+public class PaymentService {
+
+    @Autowired
+    private PaymentRepository paymentRepository;
+
+    @Autowired
+    private PolicyRepository policyRepository;
+
+    @PersistenceContext
+    private EntityManager entityManager;
+
+    @Transactional
+    public Payment payPremium(String policyNumber, Double amount) {
+        Policy policy = policyRepository.findByPolicyNumber(policyNumber);
+        if (policy == null) {
+            throw new RuntimeException("Policy not found");
+        }
+
+        Payment payment = new Payment();
+        payment.setPolicy(policy);
+        payment.setAmount(amount);
+        payment.setDatePaid(LocalDate.now());
+
+        entityManager.persist(payment);
+        return payment;
+    }
+}
+```
+
+### **Controller Example**
+
+#### **PaymentController**
+
+```java
+package com.imsapp.ims.controller;
+
+import com.imsapp.ims.entity.Payment;
+import com.imsapp.ims.service.PaymentService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+@RequestMapping("/ims/payments")
+public class PaymentController {
+
+    @Autowired
+    private PaymentService paymentService;
+
+    @PostMapping("/premium")
+    public ResponseEntity<Payment> payPremium(@RequestParam String policyNumber,
+                                              @RequestParam Double amount) {
+        Payment payment = paymentService.payPremium(policyNumber, amount);
+        return ResponseEntity.ok(payment);
+    }
+}
+```
+
+### **Running the Application**
+
+1. **Build the project** using Maven or Gradle.
+2. **Run the application** using the command `./mvnw spring-boot:run` or `./gradlew bootRun`.
+3. **Test the endpoint** using Postman or cURL:
+
+```sh
+curl -X POST "http://localhost:8080/ims/payments/premium" \
+     -d "policyNumber=POL123456&amount=500.00"
+```
+
+By following these steps, you can successfully use `EntityManager` with an H2 in-memory database in your Spring Boot application to manage payments for insurance premiums[1](https://stackoverflow.com/questions/70450960/how-to-test-entitymanager-query-with-h2-in-memory-db)[2](https://stackoverflow.com/questions/25187016/spring-junit-test-using-entity-manager-doesnt-insert-data-in-h2-filesystem-data)[3](https://www.baeldung.com/spring-boot-h2-database).
+
+Let me know if you need any further assistance or modifications!
