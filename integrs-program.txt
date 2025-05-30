@@ -1,0 +1,115 @@
+Program to convert decimal numbers to nearest intergers
+********************************************************************************
+import java.math.BigDecimal;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
+
+public class ConvertAndSort {
+    public static void main(String[] args) {
+        List<String> stringList = Arrays.asList("3.14", "1.59", "2.65", "5.35", "8.97");
+        System.out.println("Original List: " + stringList);
+
+        List<String> sortedList = stringList.stream()
+                                            .map(BigDecimal::new) // Convert String to BigDecimal
+                                            .sorted() // Sort BigDecimal in ascending order
+                                            .map(BigDecimal::toString) // Convert BigDecimal back to String
+                                            .collect(Collectors.toList()); // Collect to List
+
+        System.out.println("Sorted List: " + sortedList);
+    }
+}
+
+***********************************************************************************************************
+Program to convert even intergers to multiply by 3 and odd intergers to incrementby 1
+
+[2,1,8,4,6,2,9]
+ 
+even*3
+ 
+odd+1
+
+list.stream().filter(e -> e/2==0).map(n -> n*3).collect(Collectors.toList())
+list.stream().filter(e -> e/2!=0 ? :).map(n -> n+1).collect(Collectors.toList())
+list.stream().map(e -> { if(e/2==0){
+e=e*3;
+}else{
+e=e+1;
+}
+}.collect(Collectors.toList());
+
+map(num -> num % 2 == 0 ? num * 3 : num + 1):
+
+list.stream().filter(e -> e/2==0).map(n -> n*3).
+Optional<String> optionalValue = Optional.ofNullable(null);
+Optional<Employee> e = e.get().else("")
+
+Optional.ofNullable(null): Returns an empty Optional if the value is null.
+Optional.of(null): Throws a NullPointerException if the value is null.
+
+// Online Java Compiler
+// Use this editor to write, compile and run your Java code online
+import java.util.*;
+
+class Main {
+    public static void main(String[] args) {
+         Set<Person> set = new HashSet<>();
+	        set.add(new Person("John", 25));
+	        set.add(new Person("Jane", 30));
+	        set.add(new Person("John", 25));
+	        System.out.println(set.size());
+
+    }
+}
+class Person {
+	    String name;
+	    int age;
+ 
+	    Person(String name, int age) {
+	        this.name = name;
+	        this.age = age;
+	    }
+	}
+
+
+******************************************************************
+// Online Java Compiler
+// Use this editor to write, compile and run your Java code online
+import java.util.*;
+interface A {
+
+    default void print() {
+
+        System.out.println("A's print method");
+
+    }
+
+}
+ 
+interface B {
+
+    default void print() {
+
+        System.out.println("B's print method");
+
+    }
+
+}
+ 
+
+
+class Main implements A, B {
+    public static void main(String[] args) {
+        
+        Main obj = new Main();
+
+        obj.print();
+
+        
+}
+}
+
+
+
+
+ 

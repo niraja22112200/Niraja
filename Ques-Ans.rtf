@@ -1,0 +1,255 @@
+{\rtf1\ansi\ansicpg1252\deff0\nouicompat\deflang1033{\fonttbl{\f0\fswiss\fprq2\fcharset0 Aptos;}{\f1\fnil\fcharset0 Calibri;}{\f2\fnil\fcharset2 Symbol;}}
+{\*\generator Riched20 10.0.22621}\viewkind4\uc1 
+\pard{\pntext\f2\'B7\tab}{\*\pn\pnlvlblt\pnf2\pnindent0{\pntxtb\'B7}}\widctlpar\fi-360\li720\f0\fs22 how to connect with two different database from same API \par
+
+\pard\widctlpar\par
+Connecting to two different databases (Oracle and PostgreSQL) in a Spring Boot 3.0 application involves configuring multiple data sources and setting up separate `EntityManagerFactory` and `TransactionManager` for each database. Here's a step-by-step guide to help you achieve this:\par
+\par
+1. **Add Dependencies**:\par
+   Ensure you have the necessary dependencies in your `pom.xml` or `build.gradle` for both Oracle and PostgreSQL drivers.\par
+\par
+   ```xml\par
+   <dependency>\par
+       <groupId>com.oracle.database.jdbc</groupId>\par
+       <artifactId>ojdbc8</artifactId>\par
+       <version>19.8.0.0</version>\par
+   </dependency>\par
+   <dependency>\par
+       <groupId>org.postgresql</groupId>\par
+       <artifactId>postgresql</artifactId>\par
+       <version>42.2.20</version>\par
+   </dependency>\par
+   ```\par
+\par
+2. **Configure Data Sources**:\par
+   Define the data sources in your `application.properties` or `application.yml`.\par
+\par
+   ```properties\par
+   # Oracle DataSource\par
+   spring.datasource.oracle.url=jdbc:oracle:thin:@localhost:1521:xe\par
+   spring.datasource.oracle.username=oracle_user\par
+   spring.datasource.oracle.password=oracle_password\par
+   spring.datasource.oracle.driver-class-name=oracle.jdbc.OracleDriver\par
+\par
+   # PostgreSQL DataSource\par
+   spring.datasource.postgres.url=jdbc:postgresql://localhost:5432/postgres_db\par
+   spring.datasource.postgres.username=postgres_user\par
+   spring.datasource.postgres.password=postgres_password\par
+   spring.datasource.postgres.driver-class-name=org.postgresql.Driver\par
+   ```\par
+\par
+3. **Create Configuration Classes**:\par
+   Create separate configuration classes for each data source.\par
+\par
+   ```java\par
+   @Configuration\par
+   @EnableTransactionManagement\par
+   @EnableJpaRepositories(\par
+       basePackages = "com.example.oracle.repository",\par
+       entityManagerFactoryRef = "oracleEntityManagerFactory",\par
+       transactionManagerRef = "oracleTransactionManager"\par
+   )\par
+   public class OracleConfig \{\par
+\par
+       @Primary\par
+       @Bean(name = "oracleDataSource")\par
+       @ConfigurationProperties(prefix = "spring.datasource.oracle")\par
+       public DataSource dataSource() \{\par
+           return DataSourceBuilder.create().build();\par
+       \}\par
+\par
+       @Primary\par
+       @Bean(name = "oracleEntityManagerFactory")\par
+       public LocalContainerEntityManagerFactoryBean entityManagerFactory(\par
+               EntityManagerFactoryBuilder builder,\par
+               @Qualifier("oracleDataSource") DataSource dataSource) \{\par
+           return builder\par
+                   .dataSource(dataSource)\par
+                   .packages("com.example.oracle.entity")\par
+                   .persistenceUnit("oracle")\par
+                   .build();\par
+       \}\par
+\par
+       @Primary\par
+       @Bean(name = "oracleTransactionManager")\par
+       public PlatformTransactionManager transactionManager(\par
+               @Qualifier("oracleEntityManagerFactory") EntityManagerFactory entityManagerFactory) \{\par
+           return new JpaTransactionManager(entityManagerFactory);\par
+       \}\par
+   \}\par
+\par
+   @Configuration\par
+   @EnableTransactionManagement\par
+   @EnableJpaRepositories(\par
+       basePackages = "com.example.postgres.repository",\par
+       entityManagerFactoryRef = "postgresEntityManagerFactory",\par
+       transactionManagerRef = "postgresTransactionManager"\par
+   )\par
+   public class PostgresConfig \{\par
+\par
+       @Bean(name = "postgresDataSource")\par
+       @ConfigurationProperties(prefix = "spring.datasource.postgres")\par
+       public DataSource dataSource() \{\par
+           return DataSourceBuilder.create().build();\par
+       \}\par
+\par
+       @Bean(name = "postgresEntityManagerFactory")\par
+       public LocalContainerEntityManagerFactoryBean entityManagerFactory(\par
+               EntityManagerFactoryBuilder builder,\par
+               @Qualifier("postgresDataSource") DataSource dataSource) \{\par
+           return builder\par
+                   .dataSource(dataSource)\par
+                   .packages("com.example.postgres.entity")\par
+                   .persistenceUnit("postgres")\par
+                   .build();\par
+       \}\par
+\par
+       @Bean(name = "postgresTransactionManager")\par
+       public PlatformTransactionManager transactionManager(\par
+               @Qualifier("postgresEntityManagerFactory") EntityManagerFactory entityManagerFactory) \{\par
+           return new JpaTransactionManager(entityManagerFactory);\par
+       \}\par
+   \}\par
+   ```\par
+\par
+4. **Define Entities and Repositories**:\par
+   Place your entities and repositories in separate packages as specified in the configuration classes.\par
+\par
+   ```java\par
+   // Oracle Entity\par
+   @Entity\par
+   @Table(name = "oracle_table")\par
+   public class OracleEntity \{\par
+       @Id\par
+       @GeneratedValue(strategy = GenerationType.IDENTITY)\par
+       private Long id;\par
+       private String name;\par
+       // getters and setters\par
+   \}\par
+\par
+   // PostgreSQL Entity\par
+   @Entity\par
+   @Table(name = "postgres_table")\par
+   public class PostgresEntity \{\par
+       @Id\par
+       @GeneratedValue(strategy = GenerationType.IDENTITY)\par
+       private Long id;\par
+       private String name;\par
+       // getters and setters\par
+   \}\par
+\par
+   // Oracle Repository\par
+   public interface OracleRepository extends JpaRepository<OracleEntity, Long> \{\par
+   \}\par
+\par
+   // PostgreSQL Repository\par
+   public interface PostgresRepository extends JpaRepository<PostgresEntity, Long> \{\par
+   \}\par
+   ```\par
+\par
+By following these steps, you can configure your Spring Boot application to connect to both Oracle and PostgreSQL databases [1](https://www.baeldung.com/spring-data-jpa-multiple-databases) [2](https://stackoverflow.com/questions/30337582/spring-boot-configure-and-use-two-data-sources).\par
+**********************************************************************************\par
+\par
+To handle transaction rollbacks on exceptions in a Spring Boot application with multiple databases, you can use the `@Transactional` annotation along with a `ChainedTransactionManager`. This ensures that if an operation fails on one database, the transaction is rolled back on both databases. Here\rquote s how you can set it up:\par
+\par
+1. **Add Dependencies**:\par
+   Ensure you have the necessary dependencies for Spring Data JPA and the database drivers.\par
+\par
+2. **Create a ChainedTransactionManager**:\par
+   Define a `ChainedTransactionManager` to manage transactions across multiple data sources.\par
+\par
+   ```java\par
+   @Configuration\par
+   public class TransactionManagerConfig \{\par
+\par
+       @Primary\par
+       @Bean(name = "chainedTransactionManager")\par
+       public PlatformTransactionManager transactionManager(\par
+               @Qualifier("oracleTransactionManager") PlatformTransactionManager oracleTransactionManager,\par
+               @Qualifier("postgresTransactionManager") PlatformTransactionManager postgresTransactionManager) \{\par
+           return new ChainedTransactionManager(oracleTransactionManager, postgresTransactionManager);\par
+       \}\par
+   \}\par
+   ```\par
+\par
+3. **Configure Transaction Managers**:\par
+   Ensure each data source has its own `TransactionManager`.\par
+\par
+   ```java\par
+   @Configuration\par
+   @EnableTransactionManagement\par
+   public class OracleConfig \{\par
+\par
+       @Primary\par
+       @Bean(name = "oracleTransactionManager")\par
+       public PlatformTransactionManager oracleTransactionManager(\par
+               @Qualifier("oracleEntityManagerFactory") EntityManagerFactory entityManagerFactory) \{\par
+           return new JpaTransactionManager(entityManagerFactory);\par
+       \}\par
+   \}\par
+\par
+   @Configuration\par
+   @EnableTransactionManagement\par
+   public class PostgresConfig \{\par
+\par
+       @Bean(name = "postgresTransactionManager")\par
+       public PlatformTransactionManager postgresTransactionManager(\par
+               @Qualifier("postgresEntityManagerFactory") EntityManagerFactory entityManagerFactory) \{\par
+           return new JpaTransactionManager(entityManagerFactory);\par
+       \}\par
+   \}\par
+   ```\par
+\par
+4. **Use @Transactional with ChainedTransactionManager**:\par
+   Apply the `@Transactional` annotation to your service methods, specifying the `chainedTransactionManager`.\par
+\par
+   ```java\par
+   @Service\par
+   public class MyService \{\par
+\par
+       @Autowired\par
+       private OracleRepository oracleRepository;\par
+\par
+       @Autowired\par
+       private PostgresRepository postgresRepository;\par
+\par
+       @Transactional("chainedTransactionManager")\par
+       public void performDatabaseOperations() \{\par
+           try \{\par
+               // Perform operations on Oracle database\par
+               OracleEntity oracleEntity = new OracleEntity();\par
+               oracleRepository.save(oracleEntity);\par
+\par
+               // Perform operations on PostgreSQL database\par
+               PostgresEntity postgresEntity = new PostgresEntity();\par
+               postgresRepository.save(postgresEntity);\par
+           \} catch (Exception ex) \{\par
+               throw new RuntimeException("Transaction failed: " + ex.getMessage());\par
+           \}\par
+       \}\par
+   \}\par
+   ```\par
+\par
+5. **Handle Exceptions**:\par
+   Ensure that exceptions are properly handled to trigger rollbacks.\par
+\par
+   ```java\par
+   @ControllerAdvice\par
+   public class GlobalExceptionHandler \{\par
+\par
+       @ExceptionHandler(RuntimeException.class)\par
+       public ResponseEntity<String> handleRuntimeException(RuntimeException ex) \{\par
+           return new ResponseEntity<>(ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);\par
+       \}\par
+   \}\par
+   ```\par
+\par
+By using the `ChainedTransactionManager`, you ensure that if an exception occurs during any part of the transaction, all operations are rolled back across both databases [1](https://stackoverflow.com/questions/56284632/spring-boot-transaction-with-two-db-rollback-first-db-if-second-db-fails) [2](https://stackoverflow.com/questions/21188239/spring-transaction-rollback-on-exception-or-throwable) [3](https://www.baeldung.com/transaction-configuration-with-jpa-and-spring). This setup helps maintain data consistency and integrity.\par
+\par
+************************************************************************************************\par
+
+\pard\widctlpar\lang16393\par
+
+\pard\sa200\sl276\slmult1\f1\lang9\par
+}
+ 

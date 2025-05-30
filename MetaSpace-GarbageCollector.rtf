@@ -1,0 +1,114 @@
+{\rtf1\ansi\ansicpg1252\deff0\nouicompat\deflang1033{\fonttbl{\f0\fnil\fcharset0 Calibri;}}
+{\*\generator Riched20 10.0.22621}\viewkind4\uc1 
+\pard\sa200\sl276\slmult1\b\f0\fs22\lang9 Metaspace in Java\par
+\b0 Metaspace is a memory space introduced in Java 8 to replace the older PermGen space. It stores class metadata, which includes information about classes and methods. Unlike PermGen, Metaspace is allocated in native memory (outside the Java heap) and can grow dynamically as needed, reducing the risk of OutOfMemoryError related to class metadata.\par
+\par
+Key Features:\par
+Dynamic Sizing: Metaspace can grow automatically by default, unlike PermGen, which had a fixed size.\par
+Garbage Collection: The garbage collector can clean up unused class metadata, helping to manage memory more efficiently.\par
+Configuration: You can configure Metaspace with flags like -XX:MetaspaceSize (initial size) and -XX:MaxMetaspaceSize (maximum size).\par
+Default Garbage Collectors\par
+Java 8\par
+The default garbage collector in Java 8 is the Parallel GC (also known as the Throughput Collector). It uses multiple threads for garbage collection, aiming to maximize throughput by minimizing the time spent in garbage collection relative to the time spent running the application1.\par
+\par
+Java 17\par
+In Java 17, the default garbage collector is the G1 GC (Garbage-First Garbage Collector). G1 GC is designed for applications running on multi-core processors with large heaps. It aims to provide predictable pause times and efficient garbage collection by dividing the heap into regions and prioritizing the collection of regions with the most garbage2.\par
+Garbage Collectors in Java 17\par
+Java 17 supports several types of garbage collectors, including the Serial GC, Parallel GC, Concurrent Mark Sweep (CMS) GC, G1 GC, and the newly-introduced Z Garbage Collector (ZGC) and Shenandoah GC. Each of these garbage collectors has unique characteristics and can be chosen based on the requirements of your Java application.\par
+\par
+1. Serial GC\par
+The Serial GC, also known as the \lquote single-threaded\rquote  GC, is the simplest form of garbage collection in Java. It uses just one CPU thread for garbage collection, which means it can be efficient for applications with a small heap size (up to approximately 100MB). However, during the garbage collection process, user threads are paused, which can lead to latency issues in larger applications.\par
+\par
+2. Parallel GC\par
+Also known as the \lquote throughput collector,\rquote  the Parallel GC is the default garbage collector for JVM. It uses multiple threads for garbage collection, which can significantly speed up the GC process. However, like the Serial GC, it also stops all application threads during garbage collection, a phase known as \ldblquote stop-the-world\rdblquote  (STW).\par
+\par
+3. Concurrent Mark Sweep (CMS) GC\par
+The CMS GC is designed to minimize the pauses caused by garbage collection by doing most of its work concurrently with the application threads. It\rquote s best suited for applications that have low latency requirements and can afford more CPU cores to ensure minor disruptions.\par
+\par
+4. G1 GC\par
+The G1 (Garbage-First) GC is designed for multi-core machines with large memory. It splits the heap into regions and performs garbage collection in the areas that contain the most garbage first, thus the name \lquote Garbage-First\rquote . It\rquote s designed to offer more predictability over the pause times compared to the CMS GC.\par
+\par
+5. Z Garbage Collector (ZGC)\par
+The ZGC is a scalable, low-latency garbage collector. The goal of ZGC is to keep GC pause times under 10 milliseconds and allow applications to use the full processing power and memory resources available in a system.\par
+\par
+6. Shenandoah GC\par
+Like ZGC, Shenandoah GC is designed to reduce pause times by doing most of its work concurrently with the running Java threads. It uses advanced algorithms and techniques to compact live memory without extensive pause times.\par
+\par
+Selecting a Garbage Collector\par
+To select a garbage collector for your Java application, you need to use JVM options. Here are the options for the mentioned garbage collectors:1. What is the difference between synchronized and ReentrantLock in Java?\par
+Answer:\par
+\par
+synchronized: A keyword in Java that provides a simple way to lock a method or block of code. It is easier to use but less flexible.\par
+ReentrantLock: A class in java.util.concurrent.locks package that offers more advanced features like fairness, ability to interrupt waiting threads, and try-lock mechanisms.\par
+\par
+Serial GC: -XX:+UseSerialGC\par
+Parallel GC: -XX:+UseParallelGC\par
+CMS GC: -XX:+UseConcMarkSweepGC\par
+G1 GC: -XX:+UseG1GC (*)\par
+ZGC: -XX:+UseZGC\par
+Shenandoah GC: -XX:+UseShenandoahGC\par
+\par
+********************************************************************\par
+The Java Virtual Machine (JVM) is a crucial component of the Java Runtime Environment (JRE) that enables Java applications to run on any device or operating system. Here\rquote s an overview of its architecture:\par
+\par
+1. Class Loader\par
+The Class Loader subsystem is responsible for loading class files. It performs three main functions:\par
+\par
+Loading: Reads the .class file and brings it into memory.\par
+Linking: Combines the class with the JVM, which includes verification, preparation, and resolution.\par
+Initialization: Executes the static initializers of the class.\par
+2. Runtime Data Areas\par
+The JVM organizes memory into several runtime data areas:\par
+\par
+Method Area: Stores class structures like runtime constant pool, field and method data, and the code for methods.\par
+Heap: The runtime data area where objects are allocated. It\rquote s shared among all threads.\par
+Java Stacks: Each thread has its own stack, which stores frames. A frame contains local variables, operand stack, and a reference to the runtime constant pool of the method\rquote s class.\par
+PC (Program Counter) Register: Each thread has its own PC register, which contains the address of the JVM instruction currently being executed.\par
+Native Method Stack: Contains all the native method information used in the application.\par
+3. Execution Engine\par
+The Execution Engine is responsible for executing the bytecode. It consists of:\par
+\par
+Interpreter: Reads and executes bytecode instructions one by one.\par
+Just-In-Time (JIT) Compiler: Improves performance by compiling bytecode into native machine code at runtime.\par
+Garbage Collector: Manages memory by reclaiming memory used by objects that are no longer reachable.\par
+4. Native Interface\par
+The Java Native Interface (JNI) allows the JVM to call and be called by native applications and libraries written in other languages like C or C++.\par
+\par
+5. Native Method Libraries\par
+These are libraries written in other languages that the JVM can use via the JNI.\par
+\par
+Diagram of JVM Architecture\par
+Here\rquote s a simplified diagram to visualize the JVM architecture:\par
+\par
++----------------------+\par
+|      Class Loader    |\par
++----------------------+\par
+|  Runtime Data Areas  |\par
+|  +----------------+  |\par
+|  |  Method Area   |  |\par
+|  +----------------+  |\par
+|  |      Heap      |  |\par
+|  +----------------+  |\par
+|  |   Java Stacks  |  |\par
+|  +----------------+  |\par
+|  | PC Registers   |  |\par
+|  +----------------+  |\par
+|  | Native Method  |  |\par
+|  |     Stacks     |  |\par
+|  +----------------+  |\par
++----------------------+\par
+|  Execution Engine    |\par
+|  +----------------+  |\par
+|  |  Interpreter   |  |\par
+|  +----------------+  |\par
+|  |      JIT       |  |\par
+|  +----------------+  |\par
+|  |  Garbage Col.  |  |\par
+|  +----------------+  |\par
++----------------------+\par
+|  Native Interface    |\par
++----------------------+\par
+| Native Method Libs   |\par
++----------------------+\par
+}
+ 

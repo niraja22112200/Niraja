@@ -1,0 +1,206 @@
+It looks like your system isn't recognizing the `mvn` command, which is commonly used for running Apache Maven. Here are a few steps you can follow to resolve this issue:
+
+1. **Check Maven Installation**:
+   - Ensure that Maven is properly installed on your system. You can download it from the official Maven website.
+
+2. **Set Environment Variables**:
+   - **M2_HOME**: This should point to your Maven installation directory.
+   - **M2**: This should be set to `%M2_HOME%\bin`.
+   - **Path**: Add `%M2_HOME%\bin` to your system's PATH variable.
+
+   Here’s how you can set these variables on Windows:
+   - Right-click on `This PC` or `My Computer` and select `Properties`.
+   - Click on `Advanced system settings`.
+   - In the System Properties window, click on `Environment Variables`.
+   - Add or update the following variables:
+     - `M2_HOME`: `C:\path\to\your\maven\installation`
+     - `M2`: `%M2_HOME%\bin`
+     - `Path`: Add `%M2_HOME%\bin` to the existing PATH variable.
+
+3. **Verify Java Installation**:
+   - Make sure that Java is installed and the `JAVA_HOME` environment variable is set correctly. Maven requires Java to run.
+
+4. **Restart Command Prompt**:
+   - After setting the environment variables, restart your command prompt or terminal to apply the changes.
+
+5. **Check Maven Version**:
+   - Open a new command prompt and type `mvn -version` to verify that Maven is correctly installed and configured.
+
+If you follow these steps and still encounter issues, it might be helpful to restart your computer or check for any typos in the environment variable paths[1](https://stackoverflow.com/questions/19090928/mvn-command-is-not-recognized-as-an-internal-or-external-command)[2](https://stackoverflow.com/questions/62639393/intellij-mvn-is-not-recognized-as-an-internal-or-external-command).
+
+Let me know if you need further assistance! 😊
+
+[1](https://stackoverflow.com/questions/19090928/mvn-command-is-not-recognized-as-an-internal-or-external-command): [Stack Overflow - mvn command not recognized](https://stackoverflow.com/questions/19090928/mvn-command-is-not-recognized-as-an-internal-or-external-command)
+[2](https://stackoverflow.com/questions/62639393/intellij-mvn-is-not-recognized-as-an-internal-or-external-command): [Stack Overflow - Intellij 'mvn' not recognized](https://stackoverflow.com/questions/62639393/intellij-mvn-is-not-recognized-as-an-internal-or-external-command)
+
+
+************************************************************************************************************************************
+If Maven is not installed on your system, you can easily install it by following these steps:
+
+1. **Download Maven**:
+   - Go to the official Maven download page and download the binary zip archive.
+
+2. **Extract the Archive**:
+   - Extract the downloaded zip file to a directory of your choice.
+
+3. **Set Environment Variables**:
+   - **M2_HOME**: Set this to the directory where you extracted Maven.
+   - **M2**: Set this to `%M2_HOME%\bin`.
+   - **Path**: Add `%M2_HOME%\bin` to your system's PATH variable.
+
+   Here’s how you can set these variables on Windows:
+   - Right-click on `This PC` or `My Computer` and select `Properties`.
+   - Click on `Advanced system settings`.
+   - In the System Properties window, click on `Environment Variables`.
+   - Add or update the following variables:
+     - `M2_HOME`: `C:\path\to\your\maven\installation`
+     - `M2`: `%M2_HOME%\bin`
+     - `Path`: Add `%M2_HOME%\bin` to the existing PATH variable.
+
+4. **Verify Java Installation**:
+   - Ensure that Java is installed and the `JAVA_HOME` environment variable is set correctly. Maven requires Java to run.
+
+5. **Restart Command Prompt**:
+   - After setting the environment variables, restart your command prompt or terminal to apply the changes.
+
+6. **Check Maven Installation**:
+   - Open a new command prompt and type `mvn -version` to verify that Maven is correctly installed and configured.
+
+For detailed installation instructions, you can refer to the [official Maven installation guide](https://maven.apache.org/install.html)[1](https://maven.apache.org/install.html).
+
+If you encounter any issues during the installation process, feel free to ask for further assistance! 😊
+
+**********************************************************************************************
+
+To download Maven from the official website, follow these steps:
+
+1. **Visit the Maven Download Page**:
+   - Go to the [official Maven download page](https://maven.apache.org/download.cgi).
+
+2. **Choose the Binary Archive**:
+   - You will see options for different formats. Choose the binary zip archive (e.g., `apache-maven-3.9.9-bin.zip`) for Windows or the tar.gz archive for Unix-based systems.
+
+3. **Download the Archive**:
+   - Click on the link to download the chosen archive.
+
+4. **Extract the Archive**:
+   - Once the download is complete, extract the contents of the archive to a directory of your choice.
+
+5. **Set Environment Variables**:
+   - **M2_HOME**: Set this to the directory where you extracted Maven.
+   - **M2**: Set this to `%M2_HOME%\bin`.
+   - **Path**: Add `%M2_HOME%\bin` to your system's PATH variable.
+
+6. **Verify Installation**:
+   - Open a new command prompt or terminal and type `mvn -version` to ensure Maven is correctly installed and configured.
+
+For detailed installation instructions, you can refer to the official Maven installation guide[1](https://maven.apache.org/download.cgi%7D).
+
+If you encounter any issues during the download or installation process, feel free to ask for further assistance! 😊
+
+To set environment variables on Windows, follow these steps:
+
+1. **Open System Properties**:
+   - Press `Win + R`, type `sysdm.cpl`, and hit Enter.
+   - Alternatively, right-click on `This PC` or `My Computer` and select `Properties`. Then click on `Advanced system settings`.
+
+2. **Access Environment Variables**:
+   - In the System Properties window, click on the `Advanced` tab.
+   - Click the `Environment Variables` button near the bottom.
+
+3. **Set Environment Variables**:
+   - In the Environment Variables window, you will see two sections: `User variables` and `System variables`.
+   - To add a new variable, click `New` under the appropriate section.
+   - Enter the variable name (e.g., `M2_HOME`) and its value (e.g., `C:\path\to\your\maven\installation`).
+   - Click `OK` to save the new variable.
+
+4. **Edit Existing Variables**:
+   - To edit an existing variable, select it from the list and click `Edit`.
+   - Modify the variable value as needed and click `OK`.
+
+5. **Add to Path Variable**:
+   - To add Maven to the `Path` variable, select `Path` from the `System variables` section and click `Edit`.
+   - Click `New` and add `%M2_HOME%\bin`.
+   - Click `OK` to save the changes.
+
+6. **Apply Changes**:
+   - Click `OK` in all windows to apply the changes.
+   - Restart your command prompt or terminal to ensure the new settings take effect.
+
+For a detailed guide, you can refer to resources like [How-To Geek](https://www.howtogeek.com/787217/how-to-edit-environment-variables-on-windows-10-or-11/)[1](https://www.howtogeek.com/787217/how-to-edit-environment-variables-on-windows-10-or-11/) or [Computer Hope](https://www.computerhope.com/issues/ch000549.htm)[2](https://www.computerhope.com/issues/ch000549.htm).
+
+Let me know if you need any further assistance! 😊
+
+
+It sounds like Maven isn't properly installed or configured on your system. Let's troubleshoot this step-by-step:
+
+1. **Check Maven Installation**:
+   - Ensure Maven is installed. You can download it from the official Maven website.
+
+2. **Set Environment Variables**:
+   - After installing Maven, you need to set the `MAVEN_HOME` and `PATH` environment variables.
+   - For Windows:
+     - Open the Control Panel and go to System and Security > System > Advanced system settings.
+     - Click on Environment Variables.
+     - Add a new system variable named `MAVEN_HOME` with the path to your Maven installation directory (e.g., `C:\Program Files\Apache\maven`).
+     - Find the `Path` variable in the system variables section, and add `%MAVEN_HOME%\bin` to it.
+
+3. **Verify Installation**:
+   - Open a new command prompt and run `mvn -version` again to check if Maven is recognized.
+
+If you've followed these steps and still encounter issues, let me know, and we can dive deeper into the problem.
+
+MAVEN_HOME C:\Users\nidwived\ProjectWorkspace\apache-maven-3.9.9
+******************************************************************************************************************
+The error you're encountering indicates that "build" is not a recognized lifecycle phase in Maven. Maven has specific lifecycle phases, and "build" is not one of them. Here are some steps to resolve this issue:
+
+1. **Use Valid Lifecycle Phases**:
+   - Maven lifecycle phases include: `validate`, `initialize`, `generate-sources`, `process-sources`, `generate-resources`, `process-resources`, `compile`, `process-classes`, `generate-test-sources`, `process-test-sources`, `generate-test-resources`, `process-test-resources`, `test-compile`, `process-test-classes`, `test`, `prepare-package`, `package`, `pre-integration-test`, `integration-test`, `post-integration-test`, `verify`, `install`, `deploy`, `pre-clean`, `clean`, `post-clean`, `pre-site`, `site`, `post-site`, `site-deploy`[1](https://stackoverflow.com/questions/36552133/unknown-lifecycle-phase-build-you-must-specify-a-valid-lifecycle-phase-or-a-g).
+
+2. **Correct Command**:
+   - Instead of `mvn build`, use a valid phase like `mvn compile` or `mvn package`. For example:
+     ```sh
+     mvn clean compile
+     mvn clean package
+     ```
+
+3. **Check Your `pom.xml`**:
+   - Ensure your `pom.xml` file is correctly configured. Here is a basic example:
+     ```xml
+     <project xmlns="http://maven.apache.org/POM/4.0.0"
+              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+         <modelVersion>4.0.0</modelVersion>
+         <groupId>com.example</groupId>
+         <artifactId>my-app</artifactId>
+         <version>1.0-SNAPSHOT</version>
+         <build>
+             <plugins>
+                 <plugin>
+                     <groupId>org.apache.maven.plugins</groupId>
+                     <artifactId>maven-compiler-plugin</artifactId>
+                     <version>3.8.1</version>
+                     <configuration>
+                         <source>1.8</source>
+                         <target>1.8</target>
+                     </configuration>
+                 </plugin>
+             </plugins>
+         </build>
+     </project>
+<plugin>
+    <groupId>org.apache.maven.plugins</groupId>
+    <artifactId>maven-compiler-plugin</artifactId>
+    <version>3.8.1</version>
+    <configuration>
+        <source>17</source>
+        <target>17</target>
+    </configuration>
+</plugin>
+
+     ```
+
+4. **Refer to Documentation**:
+   - For more detailed information, you can refer to the Maven documentation.
+
+If you need further assistance, feel free to share more details about your setup or any other errors you're encountering!

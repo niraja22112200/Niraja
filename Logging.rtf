@@ -1,0 +1,178 @@
+{\rtf1\ansi\ansicpg1252\deff0\nouicompat\deflang1033{\fonttbl{\f0\fnil\fcharset0 Calibri;}}
+{\*\generator Riched20 10.0.22621}\viewkind4\uc1 
+\pard\sa200\sl276\slmult1\f0\fs22\lang9 In Spring Boot, there are several ways to implement logging. Here are some of the most common methods:\par
+\par
+1. **Logback (Default)**:\par
+   - Spring Boot uses Logback as the default logging framework. You can configure it using the `logback-spring.xml` file.\par
+   - Example configuration:\par
+     ```xml\par
+     <configuration>\par
+         <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">\par
+             <encoder>\par
+                 <pattern>%d\{yyyy-MM-dd HH:mm:ss\} - %msg%n</pattern>\par
+             </encoder>\par
+         </appender>\par
+         <root level="INFO">\par
+             <appender-ref ref="STDOUT" />\par
+         </root>\par
+     </configuration>\par
+     ```\par
+\par
+2. **Log4j2**:\par
+   - You can switch to Log4j2 by excluding the default Logback dependency and adding Log4j2 dependencies.\par
+   - Example configuration in `application.properties`:\par
+     ```properties\par
+     logging.config=classpath:log4j2-spring.xml\par
+     ```\par
+\par
+3. **Java Util Logging (JUL)**:\par
+   - Spring Boot also supports Java Util Logging. You can configure it using the `logging.properties` file.\par
+   - Example configuration:\par
+     ```properties\par
+     handlers= java.util.logging.ConsoleHandler\par
+     .level= INFO\par
+     java.util.logging.ConsoleHandler.level = FINE\par
+     java.util.logging.ConsoleHandler.formatter = java.util.logging.SimpleFormatter\par
+     ```\par
+\par
+4. **Commons Logging**:\par
+   - Commons Logging is used internally by Spring Boot, but you can also use it directly in your application.\par
+   - Example usage:\par
+     ```java\par
+     import org.apache.commons.logging.Log;\par
+     import org.apache.commons.logging.LogFactory;\par
+\par
+     public class MyClass \{\par
+         private static final Log logger = LogFactory.getLog(MyClass.class);\par
+\par
+         public void doSomething() \{\par
+             logger.info("This is an info message");\par
+         \}\par
+     \}\par
+     ```\par
+\par
+5. **Structured Logging**:\par
+   - Starting from Spring Boot 3.4.0, structured logging is supported, allowing formats like Elastic Common Schema (ECS) and Logstash JSON.\par
+   - Example configuration in `application.properties`:\par
+     ```properties\par
+     logging.file.name=logs/spring-boot-application.log\par
+     logging.pattern.console=%d\{yyyy-MM-dd HH:mm:ss\} - %msg%n\par
+     logging.pattern.file=%d\{yyyy-MM-dd HH:mm:ss\} - %msg%n\par
+     ```\par
+\par
+Each method has its own advantages and can be chosen based on your specific requirements[1](https://www.baeldung.com/spring-boot-logging)[2](https://docs.spring.io/spring-boot/reference/features/logging.html)[3](https://www.baeldung.com/spring-boot-structured-logging). \par
+\par
+Do you have a particular logging framework in mind, or would you like more details on any of these methods?\par
+\par
+*****************************************************************************\par
+To configure Log4j2 in a Spring Boot 3.0 application, follow these steps:\par
+\par
+1. **Exclude Default Logging Dependencies**:\par
+   - Spring Boot uses Logback as the default logging framework. To use Log4j2, you need to exclude Logback dependencies.\par
+   - Add the following to your `pom.xml`:\par
+     ```xml\par
+     <dependency>\par
+         <groupId>org.springframework.boot</groupId>\par
+         <artifactId>spring-boot-starter-logging</artifactId>\par
+         <scope>provided</scope>\par
+     </dependency>\par
+     ```\par
+\par
+2. **Add Log4j2 Dependencies**:\par
+   - Include the necessary Log4j2 dependencies in your `pom.xml`:\par
+     ```xml\par
+     <dependency>\par
+         <groupId>org.springframework.boot</groupId>\par
+         <artifactId>spring-boot-starter-log4j2</artifactId>\par
+     </dependency>\par
+     <dependency>\par
+         <groupId>org.apache.logging.log4j</groupId>\par
+         <artifactId>log4j-slf4j-impl</artifactId>\par
+     </dependency>\par
+     ```\par
+\par
+3. **Create Log4j2 Configuration File**:\par
+   - Create a `log4j2-spring.xml` file in the `src/main/resources` directory. This file will contain your Log4j2 configuration.\par
+   - Example configuration:\par
+     ```xml\par
+     <Configuration status="WARN">\par
+         <Appenders>\par
+             <Console name="Console" target="SYSTEM_OUT">\par
+                 <PatternLayout pattern="%d\{yyyy-MM-dd HH:mm:ss\} %-5p %c\{1\}:%L - %m%n"/>\par
+             </Console>\par
+         </Appenders>\par
+         <Loggers>\par
+             <Root level="info">\par
+                 <AppenderRef ref="Console"/>\par
+             </Root>\par
+         </Loggers>\par
+     </Configuration>\par
+     ```\par
+\par
+4. **Configure Application Properties**:\par
+   - Optionally, you can configure logging properties in `application.properties` or `application.yml`:\par
+     ```properties\par
+     logging.level.root=info\par
+     logging.level.org.springframework.web=debug\par
+     logging.file.name=logs/spring-boot-application.log\par
+     ```\par
+\par
+5. **Run Your Application**:\par
+   - With these configurations, your Spring Boot application should now use Log4j2 for logging.\par
+\par
+These steps should help you set up Log4j2 in your Spring Boot 3.0 application[1](https://springframework.guru/using-log4j-2-spring-boot/)[2](https://www.baeldung.com/spring-boot-logback-log4j2)[3](https://www.baeldung.com/spring-boot-logging). If you need more detailed information or run into any issues, feel free to ask!\par
+\par
+Would you like more details on any specific part of the configuration?\par
+***************************************************************************\par
+To exclude the default logging in a Spring Boot application, you need to exclude the `spring-boot-starter-logging` dependency and include the logging framework you want to use. Here\rquote s how you can do it:\par
+\par
+1. **Exclude Default Logging**:\par
+   - In your `pom.xml`, exclude the `spring-boot-starter-logging` dependency from the Spring Boot starter.\par
+   - Example:\par
+     ```xml\par
+     <dependency>\par
+         <groupId>org.springframework.boot</groupId>\par
+         <artifactId>spring-boot-starter-web</artifactId>\par
+         <exclusions>\par
+             <exclusion>\par
+                 <groupId>org.springframework.boot</groupId>\par
+                 <artifactId>spring-boot-starter-logging</artifactId>\par
+             </exclusion>\par
+         </exclusions>\par
+     </dependency>\par
+     ```\par
+\par
+2. **Include Your Preferred Logging Framework**:\par
+   - Add the dependency for the logging framework you want to use, such as Log4j2.\par
+   - Example for Log4j2:\par
+     ```xml\par
+     <dependency>\par
+         <groupId>org.springframework.boot</groupId>\par
+         <artifactId>spring-boot-starter-log4j2</artifactId>\par
+     </dependency>\par
+     ```\par
+\par
+3. **Check for Other Dependencies**:\par
+   - Ensure that other dependencies do not reintroduce `spring-boot-starter-logging`. If they do, exclude it from those dependencies as well.\par
+   - Example:\par
+     ```xml\par
+     <dependency>\par
+         <groupId>org.springframework.boot</groupId>\par
+         <artifactId>spring-boot-starter-data-jpa</artifactId>\par
+         <exclusions>\par
+             <exclusion>\par
+                 <groupId>org.springframework.boot</groupId>\par
+                 <artifactId>spring-boot-starter-logging</artifactId>\par
+             </exclusion>\par
+         </exclusions>\par
+     </dependency>\par
+     ```\par
+\par
+4. **Create Configuration File**:\par
+   - Create the appropriate configuration file for your logging framework (e.g., `log4j2-spring.xml` for Log4j2) in the `src/main/resources` directory.\par
+\par
+By following these steps, you can successfully exclude the default logging and configure your preferred logging framework in a Spring Boot application[1](https://stackoverflow.com/questions/62626213/spring-boot-cant-exclude-default-logging)[2](https://stackoverflow.com/questions/23984009/disable-logback-in-springboot)[3](https://howtodoinjava.com/spring-boot/spring-boot-logging-configurations/).\par
+\par
+If you need more details or run into any issues, feel free to ask!\par
+}
+ 

@@ -1,0 +1,525 @@
+To implement Log4j2 in a Spring Boot 3.0 application, follow these steps:
+
+1. **Add Log4j2 Dependencies**:
+   - Update your `pom.xml` to include the necessary Log4j2 dependencies. Here is an example:
+     ```xml
+     <dependencies>
+         <!-- Other dependencies -->
+         <dependency>
+             <groupId>org.springframework.boot</groupId>
+             <artifactId>spring-boot-starter-log4j2</artifactId>
+         </dependency>
+         <dependency>
+             <groupId>org.apache.logging.log4j</groupId>
+             <artifactId>log4j-slf4j-impl</artifactId>
+         </dependency>
+     </dependencies>
+     ```
+
+2. **Exclude Default Logging**:
+   - Exclude the default logging framework (Logback) provided by Spring Boot:
+     ```xml
+     <dependency>
+         <groupId>org.springframework.boot</groupId>
+         <artifactId>spring-boot-starter</artifactId>
+         <exclusions>
+             <exclusion>
+                 <groupId>ch.qos.logback</groupId>
+                 <artifactId>logback-classic</artifactId>
+             </exclusion>
+         </exclusions>
+     </dependency>
+     ```
+
+3. **Create Log4j2 Configuration File**:
+   - Create a `log4j2.xml` file in the `src/main/resources` directory. Here is a basic example:
+     ```xml
+     <?xml version="1.0" encoding="UTF-8"?>
+     <Configuration status="WARN">
+         <Appenders>
+             <Console name="Console" target="SYSTEM_OUT">
+                 <PatternLayout pattern="%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n"/>
+             </Console>
+         </Appenders>
+         <Loggers>
+             <Root level="info">
+                 <AppenderRef ref="Console"/>
+             </Root>
+         </Loggers>
+     </Configuration>
+     ```
+
+4. **Verify Configuration**:
+   - Ensure that your `application.properties` or `application.yml` does not contain any conflicting logging configurations.
+
+5. **Run Your Application**:
+   - Start your Spring Boot application and verify that Log4j2 is being used for logging.
+
+By following these steps, you can successfully integrate Log4j2 into your Spring Boot 3.0 application. If you encounter any issues or need further assistance, feel free to ask!
+
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Sure! Here's an example of how you can use Log4j2 for logging in a Spring Boot 3.0 application:
+
+1. **Add Log4j2 Dependencies**:
+   Ensure your `pom.xml` includes the necessary Log4j2 dependencies:
+   ```xml
+   <dependencies>
+       <dependency>
+           <groupId>org.springframework.boot</groupId>
+           <artifactId>spring-boot-starter-log4j2</artifactId>
+       </dependency>
+       <dependency>
+           <groupId>org.apache.logging.log4j</groupId>
+           <artifactId>log4j-slf4j-impl</artifactId>
+       </dependency>
+   </dependencies>
+   ```
+
+2. **Create Log4j2 Configuration File**:
+   Create a `log4j2.xml` file in the `src/main/resources` directory:
+   ```xml
+   <?xml version="1.0" encoding="UTF-8"?>
+   <Configuration status="WARN">
+       <Appenders>
+           <Console name="Console" target="SYSTEM_OUT">
+               <PatternLayout pattern="%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n"/>
+           </Console>
+       </Appenders>
+       <Loggers>
+           <Root level="info">
+               <AppenderRef ref="Console"/>
+           </Root>
+           <Logger name="com.imsapp" level="debug" additivity="false">
+               <AppenderRef ref="Console"/>
+           </Logger>
+       </Loggers>
+   </Configuration>
+   ```
+
+3. **Use Log4j2 in Your Application**:
+   In your Spring Boot application, you can use Log4j2 for logging. Here's an example of a simple service class with logging:
+   ```java
+   package com.imsapp.service;
+
+   import org.apache.logging.log4j.LogManager;
+   import org.apache.logging.log4j.Logger;
+   import org.springframework.stereotype.Service;
+
+   @Service
+   public class InsuranceService {
+       private static final Logger logger = LogManager.getLogger(InsuranceService.class);
+
+       public void processInsurance() {
+           logger.info("Processing insurance...");
+           try {
+               // Simulate some processing
+               logger.debug("Debugging insurance processing...");
+               // More code here
+               logger.info("Insurance processed successfully.");
+           } catch (Exception e) {
+               logger.error("Error processing insurance: ", e);
+           }
+       }
+   }
+   ```
+
+4. **Run Your Application**:
+   Start your Spring Boot application and observe the logs in the console. You should see log messages formatted according to your `log4j2.xml` configuration.
+
+This example demonstrates how to integrate Log4j2 into a Spring Boot 3.0 application and use it for logging various levels of messages. If you have any questions or need further assistance, feel free to ask!
+
+Log4j2 provides several logging levels to categorize log events by their severity. Here are the different logging levels in Log4j2, from highest to lowest priority:
+
+1. **OFF**: This level is used to turn off logging entirely. No log messages will be generated.
+2. **FATAL**: Indicates very severe error events that will presumably lead the application to abort.
+3. **ERROR**: Signifies error events that might still allow the application to continue running.
+4. **WARN**: Denotes potentially harmful situations.
+5. **INFO**: Provides informational messages that highlight the progress of the application at a coarse-grained level.
+6. **DEBUG**: Offers fine-grained informational events that are most useful to debug an application.
+7. **TRACE**: Provides even more detailed information than the DEBUG level. This level is very verbose and is typically used for tracing the execution of the application.
+8. **ALL**: This level is used to turn on all logging levels. All log messages will be generated.
+
+These levels help control the verbosity of the logs and allow you to filter out less important logs to focus on the most critical ones[1](https://logging.apache.org/log4j/2.x/manual/customloglevels.html)[2](https://howtodoinjava.com/log4j2/logging-levels/)[3](https://stackoverflow.com/questions/7745885/log4j-logging-hierarchy-order).
+
+Would you like to see an example of how to set these levels in a Log4j2 configuration file?
+
+*********************************************************************************************************
+You can change logging levels at runtime in Log4j2 programmatically. Here are the steps to do this:
+
+1. **Using the `Configurator` Class**:
+   - You can use the `Configurator` class from Log4j2 to set the logging level for a specific logger or the root logger. Here is an example:
+     ```java
+     import org.apache.logging.log4j.LogManager;
+     import org.apache.logging.log4j.core.config.Configurator;
+     import org.apache.logging.log4j.Level;
+
+     public class LogLevelChanger {
+         public static void main(String[] args) {
+             // Change the logging level for a specific logger
+             Configurator.setLevel("com.imsapp.service.InsuranceService", Level.DEBUG);
+
+             // Change the logging level for the root logger
+             Configurator.setRootLevel(Level.INFO);
+         }
+     }
+     ```
+
+2. **Using the `LoggerContext` and `LoggerConfig`**:
+   - You can also change the logging level using `LoggerContext` and `LoggerConfig`. This method allows more control and is preferred for more complex configurations:
+     ```java
+     import org.apache.logging.log4j.LogManager;
+     import org.apache.logging.log4j.core.LoggerContext;
+     import org.apache.logging.log4j.core.config.Configuration;
+     import org.apache.logging.log4j.core.config.LoggerConfig;
+     import org.apache.logging.log4j.Level;
+
+     public class LogLevelChanger {
+         public static void main(String[] args) {
+             LoggerContext ctx = (LoggerContext) LogManager.getContext(false);
+             Configuration config = ctx.getConfiguration();
+             LoggerConfig loggerConfig = config.getLoggerConfig("com.imsapp.service.InsuranceService");
+             loggerConfig.setLevel(Level.DEBUG);
+             ctx.updateLoggers();  // Apply the changes
+         }
+     }
+     ```
+
+3. **Example Usage**:
+   - Here is an example of how you might use these methods in a Spring Boot application:
+     ```java
+     import org.springframework.boot.CommandLineRunner;
+     import org.springframework.boot.SpringApplication;
+     import org.springframework.boot.autoconfigure.SpringBootApplication;
+     import org.apache.logging.log4j.LogManager;
+     import org.apache.logging.log4j.core.config.Configurator;
+     import org.apache.logging.log4j.Level;
+
+     @SpringBootApplication
+     public class Application implements CommandLineRunner {
+
+         public static void main(String[] args) {
+             SpringApplication.run(Application.class, args);
+         }
+
+         @Override
+         public void run(String... args) throws Exception {
+             // Change logging level at runtime
+             Configurator.setLevel("com.imsapp.service.InsuranceService", Level.DEBUG);
+             // Your application logic here
+         }
+     }
+     ```
+
+By using these methods, you can dynamically adjust the logging levels in your application based on runtime conditions or specific requirements[1](https://stackoverflow.com/questions/23434252/programmatically-change-log-level-in-log4j2)[2](https://stackoverflow.com/questions/4415467/can-we-change-the-logging-level-of-log4j-at-runtime)[3](https://learn-it-university.com/how-to-programmatically-change-the-log-level-in-log4j2/). If you have any questions or need further assistance, feel free to ask!
+
+The error you're encountering indicates a conflict between `log4j-slf4j2-impl` and `log4j-to-slf4j`. Both of these dependencies should not be present together in your project. To resolve this issue, you need to remove one of them.
+
+Here's how you can fix it:
+
+1. **Remove Conflicting Dependency**:
+   - If you are using `log4j-slf4j-impl`, remove `log4j-to-slf4j` from your `pom.xml`.
+   - Alternatively, if you prefer to use `log4j-to-slf4j`, remove `log4j-slf4j-impl`.
+
+2. **Update `pom.xml`**:
+   - Here is an example of how your `pom.xml` should look if you decide to use `log4j-slf4j-impl`:
+     ```xml
+     <dependencies>
+         <!-- Other dependencies -->
+         <dependency>
+             <groupId>org.springframework.boot</groupId>
+             <artifactId>spring-boot-starter-log4j2</artifactId>
+         </dependency>
+         <dependency>
+             <groupId>org.apache.logging.log4j</groupId>
+             <artifactId>log4j-slf4j-impl</artifactId>
+         </dependency>
+         <!-- Remove log4j-to-slf4j if present -->
+         <!-- <dependency>
+             <groupId>org.apache.logging.log4j</groupId>
+             <artifactId>log4j-to-slf4j</artifactId>
+         </dependency> -->
+     </dependencies>
+     ```
+
+3. **Rebuild Your Project**:
+   - After updating your `pom.xml`, rebuild your project to ensure the changes take effect:
+     ```sh
+     mvn clean install
+     ```
+
+By removing the conflicting dependency, you should be able to resolve the `ExceptionInInitializerError` and run your application without issues[1](https://stackoverflow.com/questions/53452060/exception-in-thread-main-java-lang-error-in-a-simple-program)[2](https://stackoverflow.com/questions/56320275/getting-error-exception-in-thread-main-java-lang-exceptionininitializererror)[3](https://javarevisited.blogspot.com/2014/06/exception-in-thread-main-java-lang-exceptionininitializerError-fix.html).
+
+If you need further assistance or have any questions, feel free to ask!
+===============================================================================================================================
+The error you're encountering is due to the presence of both `log4j-slf4j-impl` and `log4j-to-slf4j` dependencies in your `pom.xml`. You need to remove one of these dependencies to resolve the conflict.
+
+Here is the corrected `pom.xml` with the `log4j-to-slf4j` dependency removed:
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>3.4.3</version>
+        <relativePath/> <!-- lookup parent from repository -->
+    </parent>
+    <groupId>com.imsapp</groupId>
+    <artifactId>ims</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+    <name>ims</name>
+    <description>Insurance Management System Application</description>
+    <url/>
+    <licenses>
+        <license/>
+    </licenses>
+    <developers>
+        <developer/>
+    </developers>
+    <scm>
+        <connection/>
+        <developerConnection/>
+        <tag/>
+        <url/>
+    </scm>
+    <properties>
+        <java.version>17</java.version>
+    </properties>
+    <dependencies>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-validation</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <version>2.1.214</version>
+        </dependency>
+        <dependency>
+            <groupId>com.mysql</groupId>
+            <artifactId>mysql-connector-j</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-jpa</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>jakarta.persistence</groupId>
+            <artifactId>jakarta.persistence-api</artifactId>
+            <version>3.1.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <scope>annotationProcessor</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+            <version>2.8.5</version>
+        </dependency>
+        <dependency>
+            <groupId>org.hibernate.validator</groupId>
+            <artifactId>hibernate-validator</artifactId>
+            <version>8.0.0.Final</version>
+        </dependency>
+        <dependency>
+            <groupId>org.glassfish</groupId>
+            <artifactId>jakarta.el</artifactId>
+            <version>4.0.2</version>
+        </dependency>
+        <dependency>
+            <groupId>jakarta.validation</groupId>
+            <artifactId>jakarta.validation-api</artifactId>
+            <version>3.0.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <version>4.0.0</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-core</artifactId>
+            <version>6.1.0.Final</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-log4j2</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-slf4j-impl</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>ch.qos.logback</groupId>
+                    <artifactId>logback-classic</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+    </dependencies>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.13.0</version>
+                <configuration>
+                    <source>17</source>
+                    <target>17</target>
+                    <annotationProcessorPaths>
+                        <path>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                            <version>1.18.36</version>
+                        </path>
+                    </annotationProcessorPaths>
+                    <excludes>
+                        <!-- <exclude>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                            <version>1.18.36</version>
+                        </exclude> -->
+                    </excludes>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.graalvm.buildtools</groupId>
+                <artifactId>native-maven-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <excludes>
+                        <!-- <exclude>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                        </exclude> -->
+                    </excludes>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>0.8.8</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>prepare-agent</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>report</id>
+                        <phase>test</phase>
+                        <goals>
+                            <goal>report</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>jacoco-check</id>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                        <configuration>
+                            <rules>
+                                <rule>
+                                    <element>PACKAGE</element>
+                                    <limits>
+                                        <limit>
+                                            <counter>INSTRUCTION</counter>
+                                            <value>COVEREDRATIO</value>
+                                            <minimum>0.80</minimum>
+                                        </limit>
+                                    </limits>
+                                </rule>
+                            </rules>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+</project>
+```
+
+In this corrected `pom.xml`, the `log4j-to-slf4j` dependency has been removed to avoid the conflict with `log4j-slf4j-impl`. This should resolve the `ExceptionInInitializerError` and allow your application to run without issues.
+
+If you need further assistance or have any questions, feel free to ask!
+&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+To exclude the default logging framework (Logback) from a Spring Boot 3.0 application and use Log4j2 instead, follow these steps:
+
+1. **Exclude Default Logging Dependencies**:
+   - You need to exclude the `spring-boot-starter-logging` dependency from your Spring Boot starter dependencies. This will remove Logback from your classpath.
+
+2. **Add Log4j2 Dependencies**:
+   - Add the `spring-boot-starter-log4j2` dependency to your `pom.xml`.
+
+Here is an example of how to update your `pom.xml`:
+
+```xml
+<dependencies>
+    <!-- Other dependencies -->
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-web</artifactId>
+        <exclusions>
+            <exclusion>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-starter-logging</artifactId>
+            </exclusion>
+        </exclusions>
+    </dependency>
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-log4j2</artifactId>
+    </dependency>
+</dependencies>
+```
+
+3. **Create Log4j2 Configuration File**:
+   - Create a `log4j2.xml` file in the `src/main/resources` directory. Here is a basic example:
+     ```xml
+     <?xml version="1.0" encoding="UTF-8"?>
+     <Configuration status="WARN">
+         <Appenders>
+             <Console name="Console" target="SYSTEM_OUT">
+                 <PatternLayout pattern="%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n"/>
+             </Console>
+         </Appenders>
+         <Loggers>
+             <Root level="info">
+                 <AppenderRef ref="Console"/>
+             </Root>
+             <Logger name="com.imsapp" level="debug" additivity="false">
+                 <AppenderRef ref="Console"/>
+             </Logger>
+         </Loggers>
+     </Configuration>
+     ```
+
+4. **Verify Configuration**:
+   - Ensure that your `application.properties` or `application.yml` does not contain any conflicting logging configurations.
+
+5. ** Your Application**:
+   - Start your Spring Boot application and verify that Log4j2 is being used for logging.
+
+By following these steps, you can successfully exclude the default logging framework and use Log4j2 in your Spring Boot 3.0 application[1](https://stackoverflow.com/questions/62626213/spring-boot-cant-exclude-default-logging)[2](https://stackoverflow.com/questions/23984009/disable-logback-in-springboot)[3](https://www.baeldung.com/spring-boot-logback-log4j2). If you encounter any issues or need further assistance, feel free to ask!
