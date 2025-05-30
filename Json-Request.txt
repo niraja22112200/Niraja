@@ -1,0 +1,76 @@
+{
+"policyNumber":"55555",
+"policyType":"Health",
+"coverageDetails":"Full Coverage",
+"contactInfo":"contact@example.com",
+"totalPremiumAmount": 5000.0
+
+}
+[
+      {
+      "id": 1,
+      "policyNumber": "55555",
+      "policyType": "Health",
+      "coverageDetails": "Full Coverage",
+      "contactInfo": "contact@example.com"
+   },
+      {
+      "id": 2,
+      "policyNumber": "55523",
+      "policyType": "Health",
+      "coverageDetails": "Full Coverage",
+      "contactInfo": "contact@example.com"
+   },
+      {
+      "id": 3,
+      "policyNumber": "55534",
+      "policyType": "Health",
+      "coverageDetails": "Full Coverage",
+      "contactInfo": "contact@example.com"
+   },
+      {
+      "id": 4,
+      "policyNumber": "55534",
+      "policyType": "Health",
+      "coverageDetails": "Full Coverage",
+      "contactInfo": "contact@example.com"
+   }
+]
+
+Claims Request :
+
+{
+ 
+  "policy": 12345,
+  "status": "Completed",
+  "amount": 2500.75,
+  "dateFiled": "2025-03-17"
+}
+
+{
+  "status": "Completed",
+  "page": 1,
+  "size": 10
+}
+
+
+Resource Request 
+
+{
+  "name": "CustomerSupportDocLatest,
+  "type": "POLICY_DOCUMENT",
+  "url": "/Policy.pdf"
+}
+{
+  "name": "Customerdoc",
+  "type": "CUSTOMER_SUPPORT_INFORMATION",
+  "url": "/Customer-Support.pdf"
+}
+
+/ims/claims?status=Completed&page=1&size=10
+http://localhost:8080/ims/claims?status=Completed&page=1&size=10
+
+http://localhost:8080/ims/claims/all?page=1&size=5
+
+http://localhost:8080/ims/claims?status=Pending&page=1&size=10
+

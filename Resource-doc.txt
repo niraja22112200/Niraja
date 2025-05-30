@@ -1,0 +1,959 @@
+Sure! I'll update the `ResourceRequest` and `ResourceResponse` DTOs to handle the resource data. These DTOs will be used for creating and responding with resource information.
+
+### **ResourceRequest DTO**
+
+Create a new class named `ResourceRequest` in the `dto` package:
+
+```java
+package com.imsapp.ims.dto;
+
+import com.imsapp.ims.enums.DocumentType;
+
+public class ResourceRequest {
+    private String name;
+    private DocumentType type;
+    private String url;
+
+    // Getters and Setters
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public DocumentType getType() {
+        return type;
+    }
+
+    public void setType(DocumentType type) {
+        this.type = type;
+    }
+
+    public String getUrl() {
+        return url;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
+    }
+}
+```
+
+### **ResourceResponse DTO**
+
+Create a new class named `ResourceResponse` in the `dto` package:
+
+```java
+package com.imsapp.ims.dto;
+
+import com.imsapp.ims.enums.DocumentType;
+
+public class ResourceResponse {
+    private Long id;
+    private String name;
+    private DocumentType type;
+    private String url;
+
+    // Getters and Setters
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public DocumentType getType() {
+        return type;
+    }
+
+    public void setType(DocumentType type) {
+        this.type = type;
+    }
+
+    public String getUrl() {
+        return url;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
+    }
+}
+```
+
+### **Controller Update**
+
+Update the `ResourceController` to use the `ResourceRequest` and `ResourceResponse` DTOs:
+
+```java
+package com.imsapp.ims.controller;
+
+import com.imsapp.ims.dto.ResourceRequest;
+import com.imsapp.ims.dto.ResourceResponse;
+import com.imsapp.ims.entity.Resource;
+import com.imsapp.ims.service.ResourceService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.stream.Collectors;
+
+@RestController
+@RequestMapping("/ims/resources")
+public class ResourceController {
+
+    @Autowired
+    private ResourceService resourceService;
+
+    @GetMapping
+    public List<ResourceResponse> getAllResources() {
+        return resourceService.getAllResources().stream()
+                .map(this::convertToResponse)
+                .collect(Collectors.toList());
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<ResourceResponse> getResourceById(@PathVariable Long id) {
+        Resource resource = resourceService.getResourceById(id);
+        return ResponseEntity.ok(convertToResponse(resource));
+    }
+
+    @PostMapping
+    public ResponseEntity<ResourceResponse> createResource(@RequestBody ResourceRequest resourceRequest) {
+        Resource resource = convertToEntity(resourceRequest);
+        Resource createdResource = resourceService.createResource(resource);
+        return ResponseEntity.ok(convertToResponse(createdResource));
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<ResourceResponse> updateResource(@PathVariable Long id, @RequestBody ResourceRequest resourceRequest) {
+        Resource resourceDetails = convertToEntity(resourceRequest);
+        Resource updatedResource = resourceService.updateResource(id, resourceDetails);
+        return ResponseEntity.ok(convertToResponse(updatedResource));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteResource(@PathVariable Long id) {
+        resourceService.deleteResource(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    private ResourceResponse convertToResponse(Resource resource) {
+        ResourceResponse resourceResponse = new ResourceResponse();
+        resourceResponse.setId(resource.getId());
+        resourceResponse.setName(resource.getName());
+        resourceResponse.setType(resource.getType());
+        resourceResponse.setUrl(resource.getUrl());
+        return resourceResponse;
+    }
+
+    private Resource convertToEntity(ResourceRequest resourceRequest) {
+        Resource resource = new Resource();
+        resource.setName(resourceRequest.getName());
+        resource.setType(resourceRequest.getType());
+        resource.setUrl(resourceRequest.getUrl());
+        return resource;
+    }
+}
+
+To add exception handling to the above program, we can create a global exception handler using `@ControllerAdvice` and custom exception classes. This will ensure that any exceptions thrown in the application are handled gracefully and meaningful error messages are returned to the client.
+
+### **Custom Exception Classes**
+
+#### **ResourceNotFoundException**
+
+Create a custom exception class for resource not found:
+
+```java
+package com.imsapp.ims.exception;
+
+public class ResourceNotFoundException extends RuntimeException {
+    public ResourceNotFoundException(String message) {
+        super(message);
+    }
+}
+```
+
+### **Global Exception Handler**
+
+#### **GlobalExceptionHandler**
+
+Create a global exception handler using `@ControllerAdvice`:
+
+```java
+package com.imsapp.ims.exception;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.ControllerAdvice;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.context.request.WebRequest;
+
+import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.Map;
+
+@ControllerAdvice
+public class GlobalExceptionHandler {
+
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public ResponseEntity<Object> handleResourceNotFoundException(ResourceNotFoundException ex, WebRequest request) {
+        Map<String, Object> body = new HashMap<>();
+        body.put("timestamp", LocalDateTime.now());
+        body.put("status", HttpStatus.NOT_FOUND.value());
+        body.put("error", "Not Found");
+        body.put("message", ex.getMessage());
+        body.put("path", request.getDescription(false));
+
+        return new ResponseEntity<>(body, HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<Object> handleGlobalException(Exception ex, WebRequest request) {
+        Map<String, Object> body = new HashMap<>();
+        body.put("timestamp", LocalDateTime.now());
+        body.put("status", HttpStatus.INTERNAL_SERVER_ERROR.value());
+        body.put("error", "Internal Server Error");
+        body.put("message", ex.getMessage());
+        body.put("path", request.getDescription(false));
+
+        return new ResponseEntity<>(body, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+}
+```
+
+### **Service Update**
+
+Update the `ResourceService` to throw the custom exception:
+
+```java
+package com.imsapp.ims.service;
+
+import com.imsapp.ims.entity.Resource;
+import com.imsapp.ims.exception.ResourceNotFoundException;
+import com.imsapp.ims.repository.ResourceRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+
+@Service
+public class ResourceService {
+
+    @Autowired
+    private ResourceRepository resourceRepository;
+
+    public List<Resource> getAllResources() {
+        return resourceRepository.findAll();
+    }
+
+    public Resource getResourceById(Long id) {
+        return resourceRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Resource not found with id " + id));
+    }
+
+    public Resource createResource(Resource resource) {
+        return resourceRepository.save(resource);
+    }
+
+    public Resource updateResource(Long id, Resource resourceDetails) {
+        Resource resource = resourceRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Resource not found with id " + id));
+        resource.setName(resourceDetails.getName());
+        resource.setType(resourceDetails.getType());
+        resource.setUrl(resourceDetails.getUrl());
+        return resourceRepository.save(resource);
+    }
+
+    public void deleteResource(Long id) {
+        Resource resource = resourceRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Resource not found with id " + id));
+        resourceRepository.delete(resource);
+    }
+}
+```
+
+### **Controller Update**
+
+No changes are needed in the `ResourceController` for exception handling, as the exceptions will be handled by the global exception handler.
+
+### **Application Properties**
+
+Ensure your `application.properties` file is correctly configured for the H2 database:
+
+```properties
+spring.datasource.url=jdbc:h2:mem:testdb
+spring.datasource.driverClassName=org.h2.Driver
+spring.datasource.username=sa
+spring.datasource.password=password
+spring.jpa.hibernate.ddl-auto=update
+spring.jpa.show-sql=true
+spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.H2Dialect
+spring.h2.console.enabled=true
+```
+
+### **Running the Application**
+
+1. **Build the project** using Maven or Gradle.
+2. **Run the application** using the command `./mvnw spring-boot:run` or `./gradlew bootRun`.
+3. **Test the endpoints** using Postman or cURL:
+
+#### **Example Requests**
+
+- **Get all resources**:
+  ```sh
+  curl -X GET "http://localhost:8080/ims/resources"
+  ```
+
+- **Get a resource by ID**:
+  ```sh
+  curl -X GET "http://localhost:8080/ims/resources/1"
+  ```
+
+- **Create a new resource**:
+  ```sh
+  curl -X POST "http://localhost:8080/ims/resources" \
+       -H "Content-Type: application/json" \
+       -d '{
+             "name": "Policy Document",
+             "type": "POLICY_DOCUMENT",
+             "url": "/resources/policy-document.pdf"
+           }'
+  ```
+
+- **Update a resource**:
+  ```sh
+  curl -X PUT "http://localhost:8080/ims/resources/1" \
+       -H "Content-Type: application/json" \
+       -d '{
+             "name": "Updated Policy Document",
+             "type": "POLICY_DOCUMENT",
+             "url": "/resources/updated-policy-document.pdf"
+           }'
+  ```
+
+- **Delete a resource**:
+  ```sh
+  curl -X DELETE "http://localhost:8080/ims/resources/1"
+  ```
+
+This setup ensures that exceptions are handled gracefully, and meaningful error messages are returned to the client. The `GlobalExceptionHandler` handles exceptions globally, and the `ResourceService` throws custom exceptions when resources are not found.
+
+Let me know if you need any further assistance or modifications!
+
+```
+
+### **Explanation**
+
+- **ResourceRequest**: Used for creating and updating resources.
+- **ResourceResponse**: Used for responding with resource information.
+- **convertToResponse**: Converts a `Resource` entity to a `ResourceResponse` DTO.
+- **convertToEntity**: Converts a `ResourceRequest` DTO to a `Resource` entity.
+
+### **Application Properties**
+
+Ensure your `application.properties` file is correctly configured for the H2 database:
+
+```properties
+spring.datasource.url=jdbc:h2:mem:testdb
+spring.datasource.driverClassName=org.h2.Driver
+spring.datasource.username=sa
+spring.datasource.password=password
+spring.jpa.hibernate.ddl-auto=update
+spring.jpa.show-sql=true
+spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.H2Dialect
+spring.h2.console.enabled=true
+```
+
+### **Running the Application**
+
+1. **Build the project** using Maven or Gradle.
+2. **Run the application** using the command `./mvnw spring-boot:run` or `./gradlew bootRun`.
+3. **Test the endpoints** using Postman or cURL:
+
+#### **Example Requests**
+
+- **Get all resources**:
+  ```sh
+  curl -X GET "http://localhost:8080/ims/resources"
+  ```
+
+- **Get a resource by ID**:
+  ```sh
+  curl -X GET "http://localhost:8080/ims/resources/1"
+  ```
+
+- **Create a new resource**:
+  ```sh
+  curl -X POST "http://localhost:8080/ims/resources" \
+       -H "Content-Type: application/json" \
+       -d '{
+             "name": "Policy Document",
+             "type": "POLICY_DOCUMENT",
+             "url": "/resources/policy-document.pdf"
+           }'
+  ```
+
+- **Update a resource**:
+  ```sh
+  curl -X PUT "http://localhost:8080/ims/resources/1" \
+       -H "Content-Type: application/json" \
+       -d '{
+             "name": "Updated Policy Document",
+             "type": "POLICY_DOCUMENT",
+             "url": "/resources/updated-policy-document.pdf"
+           }'
+  ```
+
+- **Delete a resource**:
+  ```sh
+  curl -X DELETE "http://localhost:8080/ims/resources/1"
+  ```
+
+This setup ensures that the `ResourceRequest` and `ResourceResponse` DTOs are used for transferring data between the client and server, making the code more robust and easier to maintain. Let me know if you need any further assistance or modifications!
+
+
+
+
+
+@ExceptionHandler(ResourceNotFoundException.class)
+    public ResponseEntity<Object> handleResourceNotFoundException(ResourceNotFoundException ex, WebRequest request) {
+        Map<String, Object> body = new HashMap<>();
+        body.put("timestamp", LocalDateTime.now());
+        body.put("status", HttpStatus.NOT_FOUND.value());
+        body.put("error", "Not Found");
+        body.put("message", ex.getMessage());
+        body.put("path", request.getDescription(false));
+
+        return new ResponseEntity<>(body, HttpStatus.NOT_FOUND);
+    }
+
+To test the `ResourceService` class, you can create JSON payloads for various operations such as creating, updating, and retrieving resources. Here are some example JSON payloads for testing:
+
+### 1. **Create Resource**
+Use this JSON payload to test the `createResource` method:
+
+```json
+{
+  "name": "Resource Name",
+  "type": "Resource Type",
+  "url": "http://example.com/resource"
+}
+```
+
+### 2. **Update Resource**
+Use this JSON payload to test the `updateResource` method. Assume the resource ID is `1`:
+
+```json
+{
+  "name": "Updated Resource Name",
+  "type": "Updated Resource Type",
+  "url": "http://example.com/updated-resource"
+}
+```
+
+### 3. **Get Resource by ID**
+To test the `getResourceById` method, you can use the resource ID directly in the URL. For example, if the resource ID is `1`, the URL would be:
+
+```
+GET /ims/resources/1
+```
+
+### 4. **Get All Resources**
+To test the `getAllResources` method, you can simply call the endpoint without any payload:
+
+```
+GET /ims/resources
+```
+
+### 5. **Delete Resource**
+To test the `deleteResource` method, you can use the resource ID directly in the URL. For example, if the resource ID is `1`, the URL would be:
+
+```
+DELETE /ims/resources/1
+```
+
+### Example Test Cases
+Here are some example test cases using the above JSON payloads:
+
+#### Create Resource Test Case
+```json
+POST /ims/resources
+{
+  "name": "Resource Name",
+  "type": "Resource Type",
+  "url": "http://example.com/resource"
+}
+```
+
+#### Update Resource Test Case
+```json
+PUT /ims/resources/1
+{
+  "name": "Updated Resource Name",
+  "type": "Updated Resource Type",
+  "url": "http://example.com/updated-resource"
+}
+```
+
+#### Get Resource by ID Test Case
+```json
+GET /ims/resources/1
+```
+
+#### Get All Resources Test Case
+```json
+GET /ims/resources
+```
+
+#### Delete Resource Test Case
+```json
+DELETE /ims/resources/1
+```
+
+These JSON payloads and test cases should help you test the `ResourceService` class effectively. Let me know if you need any further assistance!
+Yes, you can keep documents in the `resources` folder. To access these documents via a URL path, you need to configure your Spring Boot application to serve static content from the `resources` folder.
+
+### Steps to Serve Static Content
+
+1. **Place Documents in `resources/static` Folder**:
+   - Create a folder named `static` inside the `src/main/resources` directory.
+   - Place your documents (e.g., PDF, images, etc.) inside this `static` folder.
+
+2. **Access Documents via URL Path**:
+   - Spring Boot automatically serves static content from the `resources/static` folder.
+   - The URL path to access a document will be `/document-name.extension`.
+
+### Example
+
+Assume you have a document named `example.pdf` in the `resources/static` folder. The URL path to access this document would be:
+
+```
+http://localhost:8080/example.pdf
+```
+
+### Configuration Example
+
+Here is an example of how you can structure your project:
+
+```
+src
+ └── main
+     └── resources
+         └── static
+             └── example.pdf
+```
+
+### Accessing the Document
+
+To access `example.pdf`, you would use the following URL:
+
+```
+http://localhost:8080/example.pdf
+```
+
+### Additional Configuration (Optional)
+
+If you need to customize the static content serving, you can add configurations in your `application.properties` file:
+
+```properties
+spring.web.resources.static-locations=classpath:/static/
+```
+
+This configuration ensures that Spring Boot serves static content from the `static` folder within `resources`.
+
+### Summary
+
+- Place your documents in the `resources/static` folder.
+- Access them via the URL path `http://localhost:8080/document-name.extension`.
+
+This setup should help you serve and access documents stored in the `resources` folder. Let me know if you need any further assistance!
+
+Yes, you can keep documents in the `resources` folder. To access these documents via a URL path, you need to configure your Spring Boot application to serve static content from the `resources` folder.
+
+### Steps to Serve Static Content
+
+1. **Place Documents in `resources/static` Folder**:
+   - Create a folder named `static` inside the `src/main/resources` directory.
+   - Place your documents (e.g., PDF, images, etc.) inside this `static` folder.
+
+2. **Access Documents via URL Path**:
+   - Spring Boot automatically serves static content from the `resources/static` folder.
+   - The URL path to access a document will be `/document-name.extension`.
+
+### Example
+
+Assume you have a document named `example.pdf` in the `resources/static` folder. The URL path to access this document would be:
+
+```
+http://localhost:8080/example.pdf
+```
+
+### Configuration Example
+
+Here is an example of how you can structure your project:
+
+```
+src
+ └── main
+     └── resources
+         └── static
+             └── example.pdf
+```
+
+### Accessing the Document
+
+To access `example.pdf`, you would use the following URL:
+
+```
+http://localhost:8080/example.pdf
+```
+
+### Additional Configuration (Optional)
+
+If you need to customize the static content serving, you can add configurations in your `application.properties` file:
+
+```properties
+spring.web.resources.static-locations=classpath:/static/
+```
+
+This configuration ensures that Spring Boot serves static content from the `static` folder within `resources`.
+
+### Summary
+
+- Place your documents in the `resources/static` folder.
+- Access them via the URL path `http://localhost:8080/document-name.extension`.
+
+This setup should help you serve and access documents stored in the `resources` folder. Let me know if you need any further assistance!
+
+
+****************************************************************************************************************************
+To update the `getResourceById` method in the `ResourceService` class to allow downloading documents stored in the `resources/static` folder, you can modify the method to return the document as a `ResponseEntity<Resource>`.
+
+Here's an updated version of the `ResourceService` class with the `getResourceById` method modified to support document downloading:
+
+```java
+package com.imsapp.ims.service.resouces;
+
+import com.imsapp.ims.entity.resources.Resource;
+import com.imsapp.ims.exception.ResourceNotFoundException;
+import com.imsapp.ims.repository.resources.ResourceRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource as SpringResource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
+
+import java.io.IOException;
+import java.util.List;
+
+@Service
+public class ResourceService {
+
+    private ResourceRepository resourceRepository;
+
+    @Autowired
+    public ResourceService(ResourceRepository resourceRepository) {
+        this.resourceRepository = resourceRepository;
+    }
+
+    public List<Resource> getAllResources() {
+        return resourceRepository.findAll();
+    }
+
+    public ResponseEntity<SpringResource> getResourceById(Long id) {
+        Resource resource = resourceRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Resource not found with id " + id));
+
+        // Assuming the resource URL points to the file name in the static folder
+        String fileName = resource.getUrl();
+        SpringResource fileResource = new ClassPathResource("static/" + fileName);
+
+        if (!fileResource.exists()) {
+            throw new ResourceNotFoundException("Document not found: " + fileName);
+        }
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + fileName + "\"");
+
+        try {
+            return ResponseEntity.ok()
+                    .headers(headers)
+                    .body(fileResource);
+        } catch (IOException e) {
+            throw new ResourceNotFoundException("Error reading document: " + fileName, e);
+        }
+    }
+
+    public Resource createResource(Resource resource) {
+        return resourceRepository.save(resource);
+    }
+
+    public Resource updateResource(Long id, Resource resourceDetails) {
+        Resource resource = resourceRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Resource not found with id " + id));
+        resource.setName(resourceDetails.getName());
+        resource.setType(resourceDetails.getType());
+        resource.setUrl(resourceDetails.getUrl());
+        return resourceRepository.save(resource);
+    }
+
+    public void deleteResource(Long id) {
+        Resource resource = resourceRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Resource not found with id " + id));
+        resourceRepository.delete(resource);
+    }
+}
+```
+
+### Explanation:
+- **`ClassPathResource`**: Used to load the document from the `resources/static` folder.
+- **`HttpHeaders`**: Set the `Content-Disposition` header to indicate that the response should be treated as an attachment.
+- **Exception Handling**: Throws `ResourceNotFoundException` if the document is not found or if there is an error reading the document.
+
+### Example URL Path:
+To download a document with ID `1`, you would use the following URL:
+
+```
+GET /ims/resources/1
+```
+
+This setup should help you download documents stored in the `resources/static` folder via the `getResourceById` method. Let me know if you need any further assistance!
+
+It looks like there might be an issue with the import statement for `SpringResource`. Let's correct it and ensure that the `Resource` class from `org.springframework.core.io` is properly imported.
+
+### Corrected Code
+
+Here's the corrected version of the `ResourceService` class with the proper import statement:
+
+```java
+package com.imsapp.ims.service.resouces;
+
+import com.imsapp.ims.entity.resources.Resource;
+import com.imsapp.ims.exception.ResourceNotFoundException;
+import com.imsapp.ims.repository.resources.ResourceRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
+
+import java.io.IOException;
+import java.util.List;
+
+@Service
+public class ResourceService {
+
+    private ResourceRepository resourceRepository;
+
+    @Autowired
+    public ResourceService(ResourceRepository resourceRepository) {
+        this.resourceRepository = resourceRepository;
+    }
+
+    public List<Resource> getAllResources() {
+        return resourceRepository.findAll();
+    }
+
+    public ResponseEntity<Resource> getResourceById(Long id) {
+        Resource resource = resourceRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Resource not found with id " + id));
+
+        // Assuming the resource URL points to the file name in the static folder
+        String fileName = resource.getUrl();
+        Resource fileResource = new ClassPathResource("static/" + fileName);
+
+        if (!fileResource.exists()) {
+            throw new ResourceNotFoundException("Document not found: " + fileName);
+        }
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + fileName + "\"");
+
+        try {
+            return ResponseEntity.ok()
+                    .headers(headers)
+                    .body(fileResource);
+        } catch (IOException e) {
+            throw new ResourceNotFoundException("Error reading document: " + fileName, e);
+        }
+    }
+
+    public Resource createResource(Resource resource) {
+        return resourceRepository.save(resource);
+    }
+
+    public Resource updateResource(Long id, Resource resourceDetails) {
+        Resource resource = resourceRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Resource not found with id " + id));
+        resource.setName(resourceDetails.getName());
+        resource.setType(resourceDetails.getType());
+        resource.setUrl(resourceDetails.getUrl());
+        return resourceRepository.save(resource);
+    }
+
+    public void deleteResource(Long id) {
+        Resource resource = resourceRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Resource not found with id " + id));
+        resourceRepository.delete(resource);
+    }
+}
+```
+
+### Explanation:
+- **Import Statement**: The correct import statement for `Resource` from `org.springframework.core.io` is:
+  ```java
+  import org.springframework.core.io.Resource;
+  ```
+
+This should resolve the error related to the import statement. Let me know if you need any further assistance!
+
+Sure, I can help you update the `ResourceController` to align with the updated `ResourceService` class. Here's the modified `ResourceController` to include the functionality for downloading documents:
+
+```java
+package com.imsapp.ims.controller.resources;
+
+import com.imsapp.ims.dto.resources.ResourceRequest;
+import com.imsapp.ims.dto.resources.ResourceResponse;
+import com.imsapp.ims.entity.resources.Resources;
+import com.imsapp.ims.service.resouces.ResourceService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.parameters.RequestBody;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseEntity;
+import.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.stream.Collectors;
+
+@RestController
+@RequestMapping("/ims/resources")
+public class ResourceController {
+
+    @Autowired
+    private ResourceService resourceService;
+
+    @Operation(summary = "Get all resources")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Found the resources",
+            content = { @Content(mediaType = "application/json",
+            schema = @Schema(implementation = ResourceResponse.class)) }),
+        @ApiResponse(responseCode = "500", description = "Internal server error",
+            content = @Content)
+    })
+    @GetMapping
+    public List<ResourceResponse> getAllResources() {
+        return resourceService.getAllResources().stream()
+            .map(this::convertToResponse)
+            .collect(Collectors.toList());
+    }
+
+    @Operation(summary = "Get a resource by ID")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Found the resource",
+            content = { @Content(mediaType = "application/json",
+            schema = @Schema(implementation = ResourceResponse.class)) }),
+        @ApiResponse(responseCode = "404", description = "Resource not found",
+            content = @Content),
+        @ApiResponse(responseCode = "500", description = "Internal server error",
+            content = @Content)
+    })
+    @GetMapping("/{id}")
+    public ResponseEntity<Resource> getResourceById(@PathVariable Long id) {
+        return resourceService.getResourceById(id);
+    }
+
+    @Operation(summary = "Create a new resource")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "201", description = "Resource created",
+            content = { @Content(mediaType = "application/json",
+            schema = @Schema(implementation = ResourceResponse.class)) }),
+        @ApiResponse(responseCode = "400", description = "Invalid input",
+            content = @Content),
+        @ApiResponse(responseCode = "500", description = "Internal server error",
+            content = @Content)
+    })
+    @PostMapping
+    public ResponseEntity<ResourceResponse> createResource(
+            @RequestBody ResourceRequest resourceRequest) {
+        Resources resource = convertToEntity(resourceRequest);
+        Resources createdResource = resourceService.createResource(resource);
+        return ResponseEntity.ok(convertToResponse(createdResource));
+    }
+
+    @Operation(summary = "Update an existing resource")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Resource updated",
+            content = { @Content(mediaType = "application/json",
+            schema = @Schema(implementation = ResourceResponse.class)) }),
+        @ApiResponse(responseCode = "400", description = "Invalid input",
+            content = @Content),
+        @ApiResponse(responseCode = "404", description = "Resource not found",
+            content = @Content),
+        @ApiResponse(responseCode = "500", description = "Internal server error",
+            content = @Content)
+    })
+    @PutMapping("/{id}")
+    public ResponseEntity<ResourceResponse> updateResource(
+            @PathVariable Long id, @RequestBody ResourceRequest resourceRequest) {
+        Resources resourceDetails = convertToEntity(resourceRequest);
+        Resources updatedResource = resourceService.updateResource(id, resourceDetails);
+        return ResponseEntity.ok(convertToResponse(updatedResource));
+    }
+
+    @Operation(summary = "Delete a resource")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "204", description = "Resource deleted",
+            content = @Content),
+        @ApiResponse(responseCode = "404", description = "Resource not found",
+            content = @Content),
+        @ApiResponse(responseCode = "500", description = "Internal server error",
+            content = @Content)
+    })
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteResource(@PathVariable Long id) {
+        resourceService.deleteResource(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    private ResourceResponse convertToResponse(Resources resource) {
+        ResourceResponse resourceResponse = new ResourceResponse();
+        resourceResponse.setId(resource.getId());
+        resourceResponse.setName(resource.getName());
+        resourceResponse.setType(resource.getType());
+        resourceResponse.setUrl(resource.getUrl());
+        return resourceResponse;
+    }
+
+    private Resources convertToEntity(ResourceRequest resourceRequest) {
+        Resources resource = new Resources();
+        resource.setName(resourceRequest.getName());
+        resource.setType(resourceRequest.getType());
+        resource.setUrl(resourceRequest.getUrl());
+        return resource;
+    }
+}
+```
+
+### Explanation:
+- **`getResourceById` Method**: Updated to return `ResponseEntity<Resource>` to support downloading documents.
+- **`ResourceService` Integration**: The controller now calls the updated `getResourceById` method from `ResourceService` to handle document downloads.
+- **`convertToResponse` and `convertToEntity` Methods**: Helper methods to convert between entity and DTO objects.
+
+This updated controller should now be in sync with the `ResourceService` class and support downloading documents stored in the `resources/static` folder. Let me know if you need any further assistance!
