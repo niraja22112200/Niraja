@@ -1,0 +1,302 @@
+{\rtf1\ansi\ansicpg1252\deff0\nouicompat\deflang1033{\fonttbl{\f0\fnil\fcharset0 Calibri;}}
+{\*\generator Riched20 10.0.22621}\viewkind4\uc1 
+\pard\sa200\sl276\slmult1\f0\fs22\lang9 Key Differences\par
+Level of Annotation:\par
+@Component is a class-level annotation.\par
+@Bean is a method-level annotation.\par
+Detection Mechanism:\par
+@Component is detected automatically through classpath scanning.\par
+@Bean requires explicit declaration in a @Configuration class.\par
+Use Case:\par
+Use @Component for your own classes to simplify automatic detection and configuration.\par
+Use @Bean for third-party classes or when you need to control the creation of the object, such as adding custom initialization logic123.\par
+\par
+***************************************************************************\par
+\par
+@PathVariable is typically required as part of the URI pattern, but can be made optional using the required attribute.\par
+Encoding:\par
+@RequestParam values are URL decoded.\par
+@PathVariable values are not URL decoded and are taken as-is from the URI path.\par
+Use Case:\par
+Use @RequestParam for filtering, sorting, or optional parameters.\par
+Use @PathVariable for identifying specific resources in RESTful APIs.\par
+******************************************************************\par
+Key Differences\par
+Response Type:\par
+@Controller: Typically returns a view name, which is resolved to a view (e.g., HTML page).\par
+@RestController: Returns data directly (e.g., JSON, XML).\par
+Annotations:\par
+@Controller: Often used with @ResponseBody on individual methods to return data directly.\par
+@RestController: Implicitly includes @ResponseBody, so no need to annotate each method with @ResponseBody.\par
+Use Case:\par
+@Controller: Suitable for traditional web applications with server-side rendered views.\par
+@RestController: Suitable for RESTful web services and APIs.\par
+**********************************************************************\par
+Key Differences\par
+Response Type:\par
+@ControllerAdvice: Used for applications that return views (e.g., HTML pages).\par
+@RestControllerAdvice: Used for applications that return data (e.g., JSON).\par
+Annotations:\par
+@ControllerAdvice: Does not include @ResponseBody by default.\par
+@RestControllerAdvice: Combines @ControllerAdvice and @ResponseBody, so all methods return data directly.\par
+Use Case:\par
+@ControllerAdvice: Suitable for traditional web applications with server-side rendered views.\par
+@RestControllerAdvice: Suitable for RESTful APIs that return data directly.\par
+******************************************************************\par
+@PostMapping\par
+Purpose: Used to create a new resource.\par
+Idempotency: Not idempotent. Multiple identical POST requests will create multiple resources.\par
+Usage: Typically used for creating new resources. The server assigns a new identifier to the resource.\par
+@PostMapping("/items")\par
+public ResponseEntity<Item> createItem(@RequestBody Item item) \{\par
+    Item createdItem = itemService.save(item);\par
+    return new ResponseEntity<>(createdItem, HttpStatus.CREATED);\par
+\}\par
+\par
+@PutMapping\par
+Purpose: Used to update an existing resource or create a resource if it does not exist.\par
+Idempotency: Idempotent. Multiple identical PUT requests will produce the same result as a single request.\par
+Usage: Typically used for updating existing resources. If the resource does not exist, it can create a new one with the specified identifier.\par
+Example\par
+@PutMapping("/items/\{id\}")\par
+public ResponseEntity<Item> updateItem(@PathVariable Long id, @RequestBody Item item) \{\par
+    item.setId(id);\par
+    Item updatedItem = itemService.save(item);\par
+    return new ResponseEntity<>(updatedItem, HttpStatus.OK);\par
+\}\par
+@PatchMapping\par
+Purpose: Used to apply partial updates to an existing resource.\par
+Idempotency: Not necessarily idempotent. Multiple identical PATCH requests may not produce the same result as a single request.\par
+Usage: Typically used for partial updates to existing resources. Only the specified fields are updated.\par
+@PatchMapping("/items/\{id\}")\par
+public ResponseEntity<Item> partiallyUpdateItem(@PathVariable Long id, @RequestBody Map<String, Object> updates) \{\par
+    Item updatedItem = itemService.partialUpdate(id, updates);\par
+    return new ResponseEntity<>(updatedItem, HttpStatus.OK);\par
+\}\par
+\b Key Differences\par
+\b0 Operation:\par
+@PostMapping: Creates a new resource.\par
+@PutMapping: Updates an existing resource or creates a new one if it does not exist.\par
+@PatchMapping: Applies partial updates to an existing resource.\par
+Idempotency:\par
+@PostMapping: Not idempotent.\par
+@PutMapping: Idempotent.\par
+@PatchMapping: Not necessarily idempotent.\par
+Use Case:\par
+@PostMapping: Use when you need to create a new resource.\par
+@PutMapping: Use when you need to update an entire resource or create it if it does not exist.\par
+@PatchMapping: Use when you need to update part of a resource.\par
+\par
+\b What are Annotations?\par
+\b0 Annotations are a form of metadata that provide data about a program but are not part of the program itself. They can be used to:\par
+\par
+Inform the compiler about warnings and errors.\par
+Manipulate source code at compilation time.\par
+Modify or examine behavior at runtime.\par
+In Spring Boot, annotations are heavily used to simplify configuration and enable various features.\par
+Summary\par
+Define the Annotation: Create an interface with @interface and specify the target and retention policies.\par
+Implement the Aspect: Use Spring AOP to define the behavior associated with the annotation.\par
+Apply the Annotation: Use the custom annotation in your controller or service methods.\par
+package com.example.annotations;\par
+\par
+import java.lang.annotation.ElementType;\par
+import java.lang.annotation.Retention;\par
+import java.lang.annotation.RetentionPolicy;\par
+import java.lang.annotation.Target;\par
+\par
+@Target(ElementType.METHOD) // Specifies that this annotation can be applied to methods\par
+@Retention(RetentionPolicy.RUNTIME) // The annotation will be available at runtime\par
+public @interface LogExecutionTime \{\par
+\}\par
+Summary\par
+Define the Annotation: Create an interface with @interface and specify the target and retention policies.\par
+Implement the Aspect: Use Spring AOP to define the behavior associated with the annotation.\par
+Apply the Annotation: Use the custom annotation in your controller or service methods.\par
+\par
+Usage of @Target\par
+The @Target annotation takes one or more ElementType values as its parameter. Here are the possible ElementType values:\par
+\par
+ElementType.TYPE: Can be applied to any element of a class (e.g., class, interface, enum).\par
+ElementType.FIELD: Can be applied to fields (member variables).\par
+ElementType.METHOD: Can be applied to methods.\par
+ElementType.PARAMETER: Can be applied to method parameters.\par
+ElementType.CONSTRUCTOR: Can be applied to constructors.\par
+ElementType.LOCAL_VARIABLE: Can be applied to local variables.\par
+ElementType.ANNOTATION_TYPE: Indicates that the declared type itself is an annotation type.\par
+ElementType.PACKAGE: Can be applied to package declarations.\par
+ElementType.TYPE_PARAMETER: Can be applied to type parameters (since Java 8).\par
+ElementType.TYPE_USE: Can be applied to any use of a type (since Java 8).\par
+Summary\par
+Annotations: Provide metadata to the code, used by Spring Boot for various functionalities.\par
+@Retention: Specifies how long annotations are retained (SOURCE, CLASS, RUNTIME).\par
+\par
+******************************************************************\par
+Key Differences\par
+Scope:\par
+Prototype: Creates a new instance for each request to the Spring container.\par
+Request: Creates a new instance for each HTTP request.\par
+Lifecycle Management:\par
+Prototype: The Spring container does not manage the lifecycle after creation.\par
+Request: The Spring container manages the lifecycle within the scope of an HTTP request.\par
+Use Case:\par
+Prototype: Ideal for non-web applications or for beans that need to maintain their own state independently.\par
+Request: Ideal for web applications where beans need to be request-specific.\par
+Key Differences\par
+Scope:\par
+Prototype: Creates a new instance for each request to the Spring container.\par
+Request: Creates a new instance for each HTTP request.\par
+Lifecycle Management:\par
+Prototype: The Spring container does not manage the lifecycle after creation.\par
+Request: The Spring container manages the lifecycle within the scope of an HTTP request.\par
+Use Case:\par
+Prototype: Ideal for non-web applications or for beans that need to maintain their own state independently.\par
+Request: Ideal for web applications where beans need to be request-specific.\par
+Request Scope\par
+Definition: A new bean instance is created for each HTTP request.\par
+Lifecycle: The bean is created at the beginning of an HTTP request and discarded at the end of the request.\par
+Use Case: Suitable for web applications where you need to maintain request-specific data.\par
+Prototype Scope\par
+Definition: A new bean instance is created every time it is requested from the container.\par
+Lifecycle: The bean is created, used, and then discarded. It is not managed by the Spring container after creation.\par
+Use Case: Suitable for stateful beans where each instance needs to maintain its own state.\par
+*************************************************************************\par
+Singleton Design Pattern\par
+Definition: A design pattern that restricts the instantiation of a class to one single instance.\par
+Implementation: Typically involves a private constructor, a static method to get the instance, and a private static variable to hold the instance.\par
+Thread Safety: Must be explicitly handled, often using synchronized blocks or other concurrency control mechanisms.\par
+Scope: The singleton instance is per class loader.\par
+Singleton Scope in Spring Boot\par
+Definition: A bean scope in Spring that ensures a single instance of a bean is created and shared within the Spring container.\par
+Implementation: Managed by the Spring container, which ensures that only one instance of the bean is created and used.\par
+Thread Safety: Managed by the Spring container, which handles the lifecycle and scope of the bean.\par
+Scope: The singleton instance is per Spring container.\par
+Key Differences\par
+Control and Management:\par
+Singleton Design Pattern: The developer manually controls the instantiation and lifecycle of the singleton instance.\par
+Singleton Scope in Spring: The Spring container manages the instantiation and lifecycle of the singleton bean.\par
+Thread Safety:\par
+Singleton Design Pattern: Thread safety must be explicitly handled by the developer.\par
+Singleton Scope in Spring: Thread safety is managed by the Spring container.\par
+Scope:\par
+Singleton Design Pattern: The singleton instance is per class loader.\par
+Singleton Scope in Spring: The singleton instance is per Spring container.\par
+Usage:\par
+Singleton Design Pattern: Used in general Java applications where a single instance of a class is needed.\par
+Singleton Scope in Spring: Used in Spring applications to define beans that should have a single instance within the Spring container.\par
+**********************************************************************\par
+Key Differences\par
+Predefinition:\par
+Primitive: Predefined by Java.\par
+Non-Primitive: Defined by the programmer.\par
+Memory Allocation:\par
+Primitive: Fixed size.\par
+Non-Primitive: Size can vary.\par
+Value Storage:\par
+Primitive: Stores actual values.\par
+Non-Primitive: Stores references to objects.\par
+Default Values:\par
+Primitive: Have default values.\par
+Non-Primitive: Can be null.\par
+Methods:\par
+Primitive: Cannot call methods on primitive types.\par
+Non-Primitive: Can call methods on non-primitive types (e.g., String.length()).\par
+// Primitive Data Type\par
+int age = 25;\par
+char grade = 'A';\par
+\par
+// Non-Primitive Data Type\par
+String name = "John Doe";\par
+int[] scores = \{90, 85, 88\};\par
+******************************************************************\par
+Summary\par
+Wrapper Classes: Convert primitive types to objects.\par
+Autoboxing: Automatic conversion from primitive to wrapper.\par
+Unboxing: Automatic conversion from wrapper to primitive.\par
+Use Cases: Collections, serialization, synchronization, utility methods.\par
+**********************************************************************\par
+Value Types (Primitive Types)\par
+Definition: Value types store actual values directly.\par
+Types: There are 8 primitive types in Java: byte, short, int, long, float, double, char, and boolean.\par
+Memory Allocation: Typically stored on the stack, where each variable holds its own copy of the data.\par
+Passing to Methods: When a value type is passed to a method, a copy of the value is passed.\par
+Equality: Comparing value types checks for equality of the actual values.\par
+Example:\par
+int a = 5;\par
+int b = a; // b is a copy of a\par
+b = 10; // Changing b does not affect a\par
+System.out.println(a); // Output: 5\par
+Reference Types\par
+Definition: Reference types store references (or addresses) to the actual objects, not the objects themselves.\par
+Types: Includes classes, interfaces, arrays, and enums.\par
+Memory Allocation: Typically stored on the heap, and variables hold references to the actual objects.\par
+Passing to Methods: When a reference type is passed to a method, a copy of the reference is passed, not the actual object.\par
+Equality: Comparing reference types checks for reference equality (whether they point to the same object) unless\par
+class MyClass \{\par
+    int value;\par
+\}\par
+\par
+MyClass obj1 = new MyClass();\par
+obj1.value = 5;\par
+MyClass obj2 = obj1; // obj2 is a reference to the same object as obj1\par
+obj2.value = 10; // Changing obj2 affects obj1\par
+System.out.println(obj1.value); // Output: 10\par
+Key Differences\par
+Storage:\par
+Value Types: Store actual values directly.\par
+Reference Types: Store references to objects.\par
+Memory Allocation:\par
+Value Types: Typically allocated on the stack.\par
+Reference Types: Allocated on the heap.\par
+Passing to Methods:\par
+Value Types: Passed by value (copy of the value).\par
+Reference Types: Passed by reference (copy of the reference).\par
+Equality:\par
+Value Types: Compare actual values.\par
+Reference Types: Compare references (unless overridden).\par
+\par
+************************************************************\par
+Java has evolved significantly from JDK 8 to JDK 17, introducing numerous features and improvements. Here\rquote s a comparison of the key differences between these versions:\par
+\par
+JDK 8\par
+Release Date: March 2014\par
+Key Features:\par
+Lambda Expressions: Introduced functional programming capabilities.\par
+Stream API: Facilitates functional-style operations on collections.\par
+Default Methods: Allows adding new methods to interfaces without breaking existing implementations.\par
+Optional Class: Helps in handling null values more gracefully.\par
+Date and Time API: A new, more comprehensive date and time API.\par
+Nashorn JavaScript Engine: A new JavaScript engine for running JavaScript code on the JVM.\par
+JDK 9\par
+Release Date: September 2017\par
+Key Features:\par
+Java Platform Module System (Project Jigsaw): Introduced modules to better structure large applications.\par
+JShell: An interactive tool for learning and prototyping Java code.\par
+Enhanced try-with-resources: Simplified resource management.\par
+Private Interface Methods: Allows private methods in interfaces.\par
+HTTP/2 Client: A new HTTP client API supporting HTTP/2 and WebSocket.\par
+JDK 11\par
+Release Date: September 2018\par
+Key Features:\par
+Local-Variable Syntax for Lambda Parameters: Allows var to be used in lambda expressions.\par
+HTTP Client: Standardized the HTTP client introduced in JDK 9.\par
+New String Methods: Added methods like isBlank(), lines(), strip(), repeat().\par
+File Methods: Added methods like readString(), writeString().\par
+Epsilon Garbage Collector: A no-op garbage collector for performance testing.\par
+Deprecations and Removals: Removed Java EE and CORBA modules.\par
+JDK 17\par
+Release Date: September 2021\par
+Key Features:\par
+Sealed Classes: Restricts which other classes or interfaces may extend or implement them.\par
+Pattern Matching for instanceof: Simplifies type checks and casting.\par
+Records: Provides a compact syntax for declaring classes that are transparent holders for shallowly immutable data.\par
+Text Blocks: Simplifies the creation of multi-line string literals.\par
+New macOS Rendering Pipeline: Uses the Apple Metal API for better performance.\par
+Strong Encapsulation: Strongly encapsulates JDK internals by default12.\par
+Summary\par
+JDK 8: Introduced functional programming and a new date/time API.\par
+JDK 9: Introduced the module system and JShell.\par
+JDK 11: Added new string and file methods, and standardized the HTTP client.\par
+JDK 17: Introduced sealed classes, pattern matching, records, and text blocks.\par
+}
+ 

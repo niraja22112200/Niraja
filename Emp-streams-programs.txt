@@ -1,0 +1,274 @@
+1) How many male and female employees are there in the organization?
+long maleCount = employeeList.stream()
+                             .filter(employee -> "Male".equals(employee.getGender()))
+                             .count();
+long femaleCount = employeeList.stream()
+                               .filter(employee -> "Female".equals(employee.getGender()))
+                               .count();
+
+2)Print the names of all departments in the organization
+employeeList.stream()
+            .map(Employee::getDepartment)
+            .distinct()
+            .forEach(System.out::println);
+
+3)What is the average age of male and female employees?
+
+Map<String, Double> averageAgeByGender = employeeList.stream()
+    .collect(Collectors.groupingBy(Employee::getGender, Collectors.averagingInt(Employee::getAge)));
+
+4)Get the details of the highest-paid employee in the organization.
+Optional<Employee> highestPaidEmployee = employeeList.stream()
+    .max(Comparator.comparingDouble(Employee::getSalary));
+
+
+5)Get the names of all employees who have joined after 2015.
+employeeList.stream()
+            .filter(employee -> employee.getYearOfJoining() > 2015)
+            .map(Employee::getName)
+            .forEach(System.out::println);
+
+
+How do you find duplicate characters in a string?
+public static void findDuplicateCharacters(String str) {
+    Map<Character, Integer> charCountMap = new HashMap<>();
+    for (char c : str.toCharArray()) {
+        charCountMap.put(c, charCountMap.getOrDefault(c, 0) + 1);
+    }
+    for (Map.Entry<Character, Integer> entry : charCountMap.entrySet()) {
+        if (entry.getValue() > 1) {
+            System.out.println(entry.getKey() + ": " + entry.getValue());
+        }
+    }
+}
+
+How do you use Java Streams to filter an employee list in Spring Boot?
+List<Employee> filteredEmployees = employees.stream()
+    .filter(employee -> employee.getAge() > 30)
+    .collect(Collectors.toList());
+Sorting employees by their names.
+List<Employee> sortedEmployees = employees.stream()
+    .sorted(Comparator.comparing(Employee::getName))
+    .collect(Collectors.toList());
+
+Converting a list of employees to a map with employee ID as the key.
+Map<Integer, Employee> employeeMap = employees.stream()
+    .collect(Collectors.toMap(Employee::getId, Function.identity()));
+
+Grouping employees by their department.
+Map<String, List<Employee>> employeesByDepartment = employees.stream()
+    .collect(Collectors.groupingBy(Employee::getDepartment));
+
+Finding the employee with the highest salary.
+Optional<Employee> highestPaidEmployee = employees.stream()
+    .max(Comparator.comparing(Employee::getSalary));
+
+
+
+
+How can you count the number of occurrences of each character in a string?
+public static void countCharacterOccurrences(String str) {
+    Map<Character, Integer> charCountMap = new HashMap<>();
+    for (char c : str.toCharArray()) {
+        charCountMap.put(c, charCountMap.getOrDefault(c, 0) + 1);
+    }
+    charCountMap.forEach((k, v) -> System.out.println(k + ": " + v));
+}
+
+
+How can you count the number of occurrences of each character in a string?
+public static void countCharacterOccurrences(String str) {
+    Map<Character, Integer> charCountMap = new HashMap<>();
+    for (char c : str.toCharArray()) {
+        charCountMap.put(c, charCountMap.getOrDefault(c, 0) + 1);
+    }
+    charCountMap.forEach((k, v) -> System.out.println(k + ": " + v));
+}
+
+
+How do you find the most frequent character in a string?
+public static void findMostFrequentCharacter(String str) {
+    Map<Character, Integer> charCountMap = new HashMap<>();
+    for (char c : str.toCharArray()) {
+        charCountMap.put(c, charCountMap.getOrDefault(c, 0) + 1);
+    }
+    char mostFrequentChar = ' ';
+    int maxCount = 0;
+    for (Map.Entry<Character, Integer> entry : charCountMap.entrySet()) {
+        if (entry.getValue() > maxCount) {
+            mostFrequentChar = entry.getKey();
+            maxCount = entry.getValue();
+        }
+    }
+    System.out.println("Most Frequent Character: " + mostFrequentChar + " with count: " + maxCount);
+}
+
+How can you find duplicate characters in a string without using any collection?
+public static void findDuplicateCharactersWithoutCollections(String str) {
+    int[] charCount = new int[256]; // Assuming ASCII characters
+    for (char c : str.toCharArray()) {
+        charCount[c]++;
+    }
+    for (int i = 0; i < charCount.length; i++) {
+        if (charCount[i] > 1) {
+            System.out.println((char) i + ": " + charCount[i]);
+        }
+    }
+}
+
+
+How do you count the number of duplicate characters in a string?
+public static int countDuplicateCharacters(String str) {
+    Map<Character, Integer> charCountMap = new HashMap<>();
+    for (char c : str.toCharArray()) {
+        charCountMap.put(c, charCountMap.getOrDefault(c, 0) + 1);
+    }
+    int duplicateCount = 0;
+    for (int count : charCountMap.values()) {
+        if (count > 1) {
+            duplicateCount++;
+        }
+    }
+    return duplicateCount;
+}
+
+
+import java.util.HashMap;
+import java.util.Map;
+
+public class WordCounter {
+    public static void main(String[] args) {
+        String input = "hello world hello java world";
+
+        // Count words and capitalize first letter
+        Map<String, Integer> wordCountMap = countWordsAndCapitalize(input);
+
+        // Print the word counts
+        for (Map.Entry<String, Integer> entry : wordCountMap.entrySet()) {
+            System.out.println(entry.getKey() + ": " + entry.getValue());
+        }
+    }
+
+    public static Map<String, Integer> countWordsAndCapitalize(String input) {
+        Map<String, Integer> wordCountMap = new HashMap<>();
+        String[] words = input.split("\\s+");
+
+        for (String word : words) {
+            String capitalizedWord = capitalizeFirstLetter(word);
+            wordCountMap.put(capitalizedWord, wordCountMap.getOrDefault(capitalizedWord, 0) + 1);
+        }
+
+        return wordCountMap;
+    }
+
+    public static String capitalizeFirstLetter(String word) {
+        if (word == null || word.isEmpty()) {
+            return word;
+        }
+        return word.substring(0, 1).toUpperCase() + word.substring(1).toLowerCase();
+    }
+}
+
+
+import java.util.HashMap;
+import java.util.Map;
+
+public class CharacterCounter {
+    public static void main(String[] args) {
+        String str = "I want to write a program";
+
+        // Count characters and their occurrences
+        Map<Character, Integer> charCountMap = countCharacters(str);
+
+        // Display the character counts
+        for (Map.Entry<Character, Integer> entry : charCountMap.entrySet()) {
+            System.out.println(entry.getKey() + ": " + entry.getValue());
+        }
+
+        // Display the first word in uppercase
+        String firstWordUppercase = getFirstWordUppercase(str);
+        System.out.println("First word in uppercase: " + firstWordUppercase);
+    }
+
+    public static Map<Character, Integer> countCharacters(String str) {
+        Map<Character, Integer> charCountMap = new HashMap<>();
+        for (char c : str.toCharArray()) {
+            if (Character.isLetterOrDigit(c)) { // Count only letters and digits
+                charCountMap.put(c, charCountMap.getOrDefault(c, 0) + 1);
+            }
+        }
+        return charCountMap;
+    }
+
+    public static String getFirstWordUppercase(String str) {
+        String[] words = str.split("\\s+");
+        if (words.length > 0) {
+            return words[0].toUpperCase();
+        }
+        return "";
+    }
+}
+
+
+@Entity
+public class Employee {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    private String name;
+
+    @ManyToOne
+    @JoinColumn(name = "department_id")
+    private Department department;
+
+    // Getters and setters
+}
+
+@Entity
+public class Department {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    private String name;
+
+    // Getters and setters
+}
+
+SELECT e.name, d.name
+FROM Employee e
+JOIN e.department d
+
+
+public interface EmployeeRepository extends JpaRepository<Employee, Long> {
+
+    @Query(value = "SELECT d.department_name, COUNT(e.employee_id) AS employee_count " +
+                   "FROM employees e " +
+                   "JOIN departments d ON e.department_id = d.department_id " +
+                   "GROUP BY d.department_name", nativeQuery = true)
+    List<Object[]> countEmployeesByDepartment();
+}
+
+
+Sealed Classes
+Records
+
+Records
+Description: Records provide a compact syntax for declaring classes that are primarily used to store data. They automatically generate boilerplate code like constructors, getters, equals(), hashCode(), and toString().
+
+int numLetters = switch (day) {
+    case MONDAY, FRIDAY, SUNDAY -> 6;
+    case TUESDAY -> 7;
+    default -> throw new IllegalStateException("Unexpected value: " + day);
+};
+
+
+
+
+
+
+
+
+
+

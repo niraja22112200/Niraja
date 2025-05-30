@@ -1,0 +1,35 @@
+import java.util.HashMap;
+import java.util.Map;
+
+public class WordCounter {
+    public static void main(String[] args) {
+        String input = "hello world hello java world";
+
+        // Count words and capitalize first letter
+        Map<String, Integer> wordCountMap = countWordsAndCapitalize(input);
+
+        // Print the word counts
+        for (Map.Entry<String, Integer> entry : wordCountMap.entrySet()) {
+            System.out.println(entry.getKey() + ": " + entry.getValue());
+        }
+    }
+
+    public static Map<String, Integer> countWordsAndCapitalize(String input) {
+        Map<String, Integer> wordCountMap = new HashMap<>();
+        String[] words = input.split("\\s+");
+
+        for (String word : words) {
+            String capitalizedWord = capitalizeFirstLetter(word);
+            wordCountMap.put(capitalizedWord, wordCountMap.getOrDefault(capitalizedWord, 0) + 1);
+        }
+
+        return wordCountMap;
+    }
+
+    public static String capitalizeFirstLetter(String word) {
+        if (word == null || word.isEmpty()) {
+            return word;
+        }
+        return word.substring(0, 1).toUpperCase() + word.substring(1).toLowerCase();
+    }
+}

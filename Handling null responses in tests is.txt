@@ -1,0 +1,82 @@
+Handling null responses in tests is important to ensure your application behaves correctly when encountering unexpected or missing data. Here are some strategies to handle null responses in your tests:
+
+### 1. **Mocking Null Responses**
+When using Mockito, you can mock methods to return null and verify how your code handles these cases.
+
+### Example:
+```java
+@Test
+public void testGetClaimsByStatus_NullResponse() throws Exception {
+    when(claimService.getClaimsByStatus(anyString(), any(Pageable.class))).thenReturn(null);
+
+    mockMvc.perform(get("/ims/claims")
+                    .param("status", "Pending")
+                    .param("page", "0")
+                    .param("size", "10"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.content").doesNotExist());
+
+    verify(claimService, times(1)).getClaimsByStatus(anyString(), any(Pageable.class));
+}
+```
+
+### 2. **Handling Null in Controller**
+Ensure your controller handles null responses gracefully, possibly by returning an appropriate status code or an empty response.
+
+### Example Controller Method:
+```java
+@GetMapping
+public ResponseEntity<Page<ClaimResponse>> getClaims(@RequestParam String status,
+                                                     @RequestParam int page,
+                                                     @RequestParam int size) {
+    Pageable pageable = PageRequest.of(page, size);
+    Page<ClaimResponse> claims = claimService.getClaimsByStatus(status, pageable);
+    if (claims == null) {
+        return ResponseEntity.ok(Page.empty());
+    }
+    return ResponseEntity.ok(claims);
+}
+```
+
+### 3. **Using Optional**
+Use `Optional` to handle potentially null values more gracefully.
+
+### Example:
+```java
+@GetMapping
+public ResponseEntity<Page<ClaimResponse>> getClaims(@RequestParam String status,
+                                                     @RequestParam int page,
+                                                     @RequestParam int size) {
+    Pageable pageable = PageRequest.of(page, size);
+    Optional<Page<ClaimResponse>> claims = Optional.ofNullable(claimService.getClaimsByStatus(status, pageable));
+    return claims.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.ok(Page.empty()));
+}
+```
+
+### 4. **Assertions for Null Values**
+In your tests, assert that the response handles null values correctly.
+
+### Example:
+```java
+@Test
+public void testGetClaimsByStatus_NullResponse() throws Exception {
+    when(claimService.getClaimsByStatus(anyString(), any(Pageable.class))).thenReturn(null);
+
+    mockMvc.perform(get("/ims/claims")
+                    .param("status", "Pending")
+                    .param("page", "0")
+                    .param("size", "10"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.content").doesNotExist());
+
+    verify(claimService, times(1)).getClaimsByStatus(anyString(), any(Pageable.class));
+}
+```
+
+### Summary:
+1. **Mock Null Responses**: Use Mockito to mock methods to return null.
+2. **Handle Null in Controller**: Ensure your controller handles null responses gracefully.
+3. **Use Optional**: Use `Optional` to handle potentially null values.
+4. **Assertions for Null Values**: Assert that the response handles null values correctly in your tests.
+
+These strategies will help you handle null responses effectively in your tests and ensure your application behaves correctly in such scenarios. Let me know if you need any further assistance!
